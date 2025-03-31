@@ -3,6 +3,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { AttendanceCalendar } from "@/components/attendance/AttendanceCalendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
 
 const Attendance = () => {
   // Mock attendance statistics
@@ -32,7 +33,10 @@ const Attendance = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{attendanceStats.present} days</div>
-              <Progress value={presentPercentage} className="h-2 mt-2 bg-gray-100" indicatorClassName="bg-green-500" />
+              <Progress 
+                value={presentPercentage} 
+                className={cn("h-2 mt-2 bg-gray-100", "before:bg-green-500")} 
+              />
               <p className="text-xs text-muted-foreground mt-1">
                 {presentPercentage}% of classes
               </p>
@@ -45,7 +49,10 @@ const Attendance = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{attendanceStats.absent} days</div>
-              <Progress value={absentPercentage} className="h-2 mt-2 bg-gray-100" indicatorClassName="bg-red-500" />
+              <Progress 
+                value={absentPercentage} 
+                className="h-2 mt-2 bg-gray-100" 
+              />
               <p className="text-xs text-muted-foreground mt-1">
                 {absentPercentage}% of classes
               </p>
@@ -58,7 +65,10 @@ const Attendance = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{attendanceStats.late} days</div>
-              <Progress value={latePercentage} className="h-2 mt-2 bg-gray-100" indicatorClassName="bg-amber-500" />
+              <Progress 
+                value={latePercentage} 
+                className="h-2 mt-2 bg-gray-100" 
+              />
               <p className="text-xs text-muted-foreground mt-1">
                 {latePercentage}% of classes
               </p>
@@ -71,7 +81,10 @@ const Attendance = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{attendanceStats.excused} days</div>
-              <Progress value={excusedPercentage} className="h-2 mt-2 bg-gray-100" indicatorClassName="bg-blue-400" />
+              <Progress 
+                value={excusedPercentage} 
+                className="h-2 mt-2 bg-gray-100" 
+              />
               <p className="text-xs text-muted-foreground mt-1">
                 {excusedPercentage}% of classes
               </p>
