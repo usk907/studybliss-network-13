@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,7 @@ export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,6 +26,7 @@ export function LoginForm() {
         title: "Success",
         description: "You have successfully logged in.",
       });
+      navigate("/"); // Redirect to dashboard after login
     }, 1500);
   };
 
@@ -38,6 +40,7 @@ export function LoginForm() {
         title: "Success",
         description: "Google authentication successful.",
       });
+      navigate("/"); // Redirect to dashboard after login
     }, 1500);
   };
 

@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "@/hooks/use-toast";
 
 // Mock attendance data
 // status: "present" | "absent" | "late" | "excused" | "holiday"
@@ -53,10 +54,18 @@ export function AttendanceCalendar() {
           status: attendanceInfo.status,
           note: attendanceInfo.note,
         });
+        toast({
+          title: "Attendance Record",
+          description: `Status: ${attendanceInfo.status}${attendanceInfo.note ? ` - ${attendanceInfo.note}` : ''}`,
+        });
       } else {
         setSelectedDateInfo({
           date: dateString,
           status: "no-record",
+        });
+        toast({
+          title: "No attendance record",
+          description: `No attendance data for ${new Date(dateString).toLocaleDateString()}`,
         });
       }
     }
@@ -122,11 +131,11 @@ export function AttendanceCalendar() {
             <div className="flex flex-col gap-2">
               <h3 className="font-medium text-sm">Legend</h3>
               <div className="flex gap-2 flex-wrap">
-                <Badge className="bg-green-500">Present</Badge>
-                <Badge className="bg-red-500">Absent</Badge>
-                <Badge className="bg-amber-500">Late</Badge>
-                <Badge className="bg-blue-400">Excused</Badge>
-                <Badge className="bg-purple-400">Holiday</Badge>
+                <Badge className="bg-green-500 cursor-pointer" onClick={() => toast({title: "Present", description: "Days you attended class"})}>Present</Badge>
+                <Badge className="bg-red-500 cursor-pointer" onClick={() => toast({title: "Absent", description: "Days you missed class"})}>Absent</Badge>
+                <Badge className="bg-amber-500 cursor-pointer" onClick={() => toast({title: "Late", description: "Days you arrived late to class"})}>Late</Badge>
+                <Badge className="bg-blue-400 cursor-pointer" onClick={() => toast({title: "Excused", description: "Absence with valid excuse"})}>Excused</Badge>
+                <Badge className="bg-purple-400 cursor-pointer" onClick={() => toast({title: "Holiday", description: "School holiday - no class"})}>Holiday</Badge>
               </div>
             </div>
             

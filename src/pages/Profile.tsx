@@ -10,20 +10,116 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 const Profile = () => {
-  const { toast } = useToast();
+  const { toast: useToastHook } = useToast();
   const [saving, setSaving] = useState(false);
+  
+  // Form states for various sections
+  const [personalInfo, setPersonalInfo] = useState({
+    firstName: "Jane",
+    lastName: "Doe",
+    email: "jane.doe@example.com",
+    phone: "+1 555-123-4567",
+    bio: "Computer science student passionate about AI and machine learning."
+  });
+  
+  const [education, setEducation] = useState({
+    institution: "University of Technology",
+    degree: "Bachelor of Science",
+    field: "Computer Science",
+    startYear: "2020",
+    endYear: "2024"
+  });
+  
+  // Preferences states
+  const [notifications, setNotifications] = useState({
+    email: true,
+    courseUpdates: true,
+    assignmentReminders: true
+  });
+  
+  const [display, setDisplay] = useState({
+    darkMode: false,
+    compactView: false
+  });
+  
+  const [privacy, setPrivacy] = useState({
+    profileVisibility: "classmates"
+  });
+  
+  const handlePersonalInfoChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setPersonalInfo({
+      ...personalInfo,
+      [e.target.id]: e.target.value
+    });
+  };
+  
+  const handleEducationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEducation({
+      ...education,
+      [e.target.id]: e.target.value
+    });
+  };
+  
+  const handleNotificationToggle = (setting: keyof typeof notifications) => {
+    setNotifications({
+      ...notifications,
+      [setting]: !notifications[setting]
+    });
+  };
+  
+  const handleDisplayToggle = (setting: keyof typeof display) => {
+    setDisplay({
+      ...display,
+      [setting]: !display[setting]
+    });
+  };
+  
+  const handleVisibilityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setPrivacy({
+      ...privacy,
+      profileVisibility: e.target.value
+    });
+  };
   
   const handleSave = () => {
     setSaving(true);
     setTimeout(() => {
       setSaving(false);
-      toast({
+      useToastHook({
         title: "Profile updated",
         description: "Your profile information has been updated successfully.",
       });
     }, 1500);
+  };
+  
+  const handlePhotoChange = () => {
+    toast.success("Photo upload dialog would open here");
+  };
+  
+  const handleAddEducation = () => {
+    toast.info("Add education form would open here");
+  };
+  
+  const handleResetPreferences = () => {
+    setNotifications({
+      email: true,
+      courseUpdates: true,
+      assignmentReminders: true
+    });
+    
+    setDisplay({
+      darkMode: false,
+      compactView: false
+    });
+    
+    setPrivacy({
+      profileVisibility: "classmates"
+    });
+    
+    toast.success("Preferences reset to default");
   };
 
   return (
@@ -43,9 +139,14 @@ const Profile = () => {
                 <AvatarFallback>JD</AvatarFallback>
               </Avatar>
               <div className="mt-4 text-center">
-                <h3 className="text-lg font-semibold">Jane Doe</h3>
-                <p className="text-sm text-gray-500">jane.doe@example.com</p>
-                <Button variant="outline" size="sm" className="mt-3">
+                <h3 className="text-lg font-semibold">{personalInfo.firstName} {personalInfo.lastName}</h3>
+                <p className="text-sm text-gray-500">{personalInfo.email}</p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-3"
+                  onClick={handlePhotoChange}
+                >
                   Change Photo
                 </Button>
               </div>
@@ -99,22 +200,40 @@ const Profile = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="firstName">First Name</Label>
-                        <Input id="firstName" defaultValue="Jane" />
+                        <Input 
+                          id="firstName" 
+                          value={personalInfo.firstName}
+                          onChange={handlePersonalInfoChange}
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="lastName">Last Name</Label>
-                        <Input id="lastName" defaultValue="Doe" />
+                        <Input 
+                          id="lastName" 
+                          value={personalInfo.lastName}
+                          onChange={handlePersonalInfoChange}
+                        />
                       </div>
                     </div>
                     
                     <div className="space-y-2">
                       <Label htmlFor="email">Email Address</Label>
-                      <Input id="email" type="email" defaultValue="jane.doe@example.com" />
+                      <Input 
+                        id="email" 
+                        type="email" 
+                        value={personalInfo.email}
+                        onChange={handlePersonalInfoChange}
+                      />
                     </div>
                     
                     <div className="space-y-2">
                       <Label htmlFor="phone">Phone Number</Label>
-                      <Input id="phone" type="tel" defaultValue="+1 555-123-4567" />
+                      <Input 
+                        id="phone" 
+                        type="tel" 
+                        value={personalInfo.phone}
+                        onChange={handlePersonalInfoChange}
+                      />
                     </div>
                     
                     <div className="space-y-2">
@@ -122,12 +241,28 @@ const Profile = () => {
                       <textarea
                         id="bio"
                         className="w-full min-h-[100px] p-3 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-elearn-primary"
-                        defaultValue="Computer science student passionate about AI and machine learning."
+                        value={personalInfo.bio}
+                        onChange={handlePersonalInfoChange}
                       />
                     </div>
                   </CardContent>
                   <CardFooter className="justify-end">
-                    <Button variant="outline" className="mr-2">Cancel</Button>
+                    <Button 
+                      variant="outline" 
+                      className="mr-2"
+                      onClick={() => {
+                        setPersonalInfo({
+                          firstName: "Jane",
+                          lastName: "Doe",
+                          email: "jane.doe@example.com",
+                          phone: "+1 555-123-4567",
+                          bio: "Computer science student passionate about AI and machine learning."
+                        });
+                        toast.info("Changes discarded");
+                      }}
+                    >
+                      Cancel
+                    </Button>
                     <Button onClick={handleSave} disabled={saving}>
                       {saving ? "Saving..." : "Save Changes"}
                     </Button>
@@ -146,39 +281,80 @@ const Profile = () => {
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="institution">Institution</Label>
-                      <Input id="institution" defaultValue="University of Technology" />
+                      <Input 
+                        id="institution" 
+                        value={education.institution}
+                        onChange={handleEducationChange}
+                      />
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="degree">Degree</Label>
-                        <Input id="degree" defaultValue="Bachelor of Science" />
+                        <Input 
+                          id="degree" 
+                          value={education.degree}
+                          onChange={handleEducationChange}
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="field">Field of Study</Label>
-                        <Input id="field" defaultValue="Computer Science" />
+                        <Input 
+                          id="field" 
+                          value={education.field}
+                          onChange={handleEducationChange}
+                        />
                       </div>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="startYear">Start Year</Label>
-                        <Input id="startYear" type="number" defaultValue="2020" />
+                        <Input 
+                          id="startYear" 
+                          type="number" 
+                          value={education.startYear}
+                          onChange={handleEducationChange}
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="endYear">End Year</Label>
-                        <Input id="endYear" type="number" defaultValue="2024" />
+                        <Input 
+                          id="endYear" 
+                          type="number" 
+                          value={education.endYear}
+                          onChange={handleEducationChange}
+                        />
                       </div>
                     </div>
                     
                     <div className="pt-2">
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={handleAddEducation}
+                      >
                         + Add Another Education
                       </Button>
                     </div>
                   </CardContent>
                   <CardFooter className="justify-end">
-                    <Button variant="outline" className="mr-2">Cancel</Button>
+                    <Button 
+                      variant="outline" 
+                      className="mr-2"
+                      onClick={() => {
+                        setEducation({
+                          institution: "University of Technology",
+                          degree: "Bachelor of Science",
+                          field: "Computer Science",
+                          startYear: "2020",
+                          endYear: "2024"
+                        });
+                        toast.info("Changes discarded");
+                      }}
+                    >
+                      Cancel
+                    </Button>
                     <Button onClick={handleSave} disabled={saving}>
                       {saving ? "Saving..." : "Save Changes"}
                     </Button>
@@ -203,7 +379,8 @@ const Profile = () => {
                           <input 
                             type="checkbox" 
                             id="email-notifs" 
-                            defaultChecked 
+                            checked={notifications.email}
+                            onChange={() => handleNotificationToggle('email')}
                             className="toggle" 
                           />
                         </div>
@@ -212,7 +389,8 @@ const Profile = () => {
                           <input 
                             type="checkbox" 
                             id="course-updates" 
-                            defaultChecked 
+                            checked={notifications.courseUpdates}
+                            onChange={() => handleNotificationToggle('courseUpdates')}
                             className="toggle" 
                           />
                         </div>
@@ -221,7 +399,8 @@ const Profile = () => {
                           <input 
                             type="checkbox" 
                             id="assignment-reminders" 
-                            defaultChecked 
+                            checked={notifications.assignmentReminders}
+                            onChange={() => handleNotificationToggle('assignmentReminders')}
                             className="toggle" 
                           />
                         </div>
@@ -238,6 +417,8 @@ const Profile = () => {
                           <input 
                             type="checkbox" 
                             id="dark-mode" 
+                            checked={display.darkMode}
+                            onChange={() => handleDisplayToggle('darkMode')}
                             className="toggle" 
                           />
                         </div>
@@ -246,6 +427,8 @@ const Profile = () => {
                           <input 
                             type="checkbox" 
                             id="compact-view" 
+                            checked={display.compactView}
+                            onChange={() => handleDisplayToggle('compactView')}
                             className="toggle" 
                           />
                         </div>
@@ -262,7 +445,8 @@ const Profile = () => {
                           <select 
                             id="profile-visibility"
                             className="p-2 border rounded-md"
-                            defaultValue="classmates"
+                            value={privacy.profileVisibility}
+                            onChange={handleVisibilityChange}
                           >
                             <option value="public">Public</option>
                             <option value="classmates">Classmates Only</option>
@@ -273,7 +457,13 @@ const Profile = () => {
                     </div>
                   </CardContent>
                   <CardFooter className="justify-end">
-                    <Button variant="outline" className="mr-2">Reset to Default</Button>
+                    <Button 
+                      variant="outline" 
+                      className="mr-2"
+                      onClick={handleResetPreferences}
+                    >
+                      Reset to Default
+                    </Button>
                     <Button onClick={handleSave} disabled={saving}>
                       {saving ? "Saving..." : "Save Preferences"}
                     </Button>

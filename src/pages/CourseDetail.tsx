@@ -1,5 +1,4 @@
-
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -9,8 +8,8 @@ import { Book, Calendar, Clock, FileText, PlayCircle, Users } from "lucide-react
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { useToast } from "@/hooks/use-toast";
 
-// Mock course data
 const course = {
   id: "1",
   title: "Introduction to Python Programming",
@@ -117,6 +116,8 @@ const course = {
 
 const CourseDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   const completedLessons = course.modules.reduce((acc, module) => {
     return acc + module.lessons.filter((lesson) => lesson.completed).length;
@@ -128,10 +129,51 @@ const CourseDetail = () => {
   
   const progressPercentage = Math.round((completedLessons / totalLessons) * 100);
 
+  const handleStartLesson = (lessonId: string) => {
+    toast({
+      title: "Starting lesson",
+      description: `Starting lesson ${lessonId}`,
+    });
+    // In a real app, we would navigate to the lesson page and update progress
+  };
+
+  const handleContinueLearning = () => {
+    // Find the first incomplete lesson
+    for (const module of course.modules) {
+      for (const lesson of module.lessons) {
+        if (!lesson.completed) {
+          toast({
+            title: "Continuing learning",
+            description: `Resuming from ${lesson.title}`,
+          });
+          return;
+        }
+      }
+    }
+    
+    toast({
+      title: "Course completed",
+      description: "You've completed all lessons in this course!",
+    });
+  };
+
+  const handleAssignment = (assignmentId: string, status: string) => {
+    if (status === "not-started") {
+      toast({
+        title: "Assignment started",
+        description: "You've started working on this assignment",
+      });
+    } else {
+      toast({
+        title: "Assignment details",
+        description: `Viewing details for assignment ${assignmentId}`,
+      });
+    }
+  };
+
   return (
     <AppLayout>
       <div className="space-y-6">
-        {/* Course Header */}
         <div className="relative h-48 md:h-64 lg:h-80 rounded-xl overflow-hidden">
           <img
             src={course.thumbnail}
@@ -156,9 +198,7 @@ const CourseDetail = () => {
           </div>
         </div>
 
-        {/* Course Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Content */}
           <div className="lg:col-span-2">
             <Tabs defaultValue="overview">
               <TabsList className="grid w-full grid-cols-4">
@@ -167,6 +207,7 @@ const CourseDetail = () => {
                 <TabsTrigger value="assignments">Assignments</TabsTrigger>
                 <TabsTrigger value="discussions">Discussions</TabsTrigger>
               </TabsList>
+              
               <TabsContent value="overview" className="space-y-6 pt-4">
                 <div>
                   <h2 className="text-2xl font-bold mb-4">About This Course</h2>
@@ -281,7 +322,11 @@ const CourseDetail = () => {
                                   Completed
                                 </Badge>
                               ) : (
-                                <Button size="sm" variant="ghost">
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost"
+                                  onClick={() => handleStartLesson(lesson.id)}
+                                >
                                   Start
                                 </Button>
                               )}
@@ -317,10 +362,20 @@ const CourseDetail = () => {
                               </>
                             )}
                             {assignment.status === "pending" && (
-                              <Badge className="bg-yellow-500">Pending</Badge>
+                              <Badge 
+                                className="bg-yellow-500 cursor-pointer"
+                                onClick={() => handleAssignment(assignment.id, assignment.status)}
+                              >
+                                Pending
+                              </Badge>
                             )}
                             {assignment.status === "not-started" && (
-                              <Button size="sm">Start</Button>
+                              <Button 
+                                size="sm"
+                                onClick={() => handleAssignment(assignment.id, assignment.status)}
+                              >
+                                Start
+                              </Button>
                             )}
                           </div>
                         </div>
@@ -339,14 +394,19 @@ const CourseDetail = () => {
             </Tabs>
           </div>
           
-          {/* Sidebar */}
           <div>
             <div className="sticky top-6">
               <Card>
                 <CardContent className="p-6 space-y-4">
                   <div className="text-center">
                     <div className="text-3xl font-bold mb-1">{course.price}</div>
-                    <Button className="w-full" size="lg">Continue Learning</Button>
+                    <Button 
+                      className="w-full" 
+                      size="lg"
+                      onClick={handleContinueLearning}
+                    >
+                      Continue Learning
+                    </Button>
                   </div>
                   
                   <div className="space-y-3">
