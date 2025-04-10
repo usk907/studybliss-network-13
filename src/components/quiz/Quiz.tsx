@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -41,34 +40,27 @@ const Quiz = () => {
   const [attemptsCount, setAttemptsCount] = useState(0);
   const [remainingAttempts, setRemainingAttempts] = useState(3);
   
-  // Load quiz data and attempts count
   useEffect(() => {
     const fetchQuizData = async () => {
       if (!id || !user) return;
       
       try {
-        // Fetch quiz data
         const { data: quizData, error: quizError } = await supabase
-          .from("quizzes")
-          .select(`
-            id, 
-            title, 
-            description, 
-            course_id,
-            quiz_questions (
-              id, 
-              question, 
-              options, 
-              correct_answer,
-              explanation
-            )
-          `)
-          .eq("id", id)
+          .from('quizzes')
+          .select('id, title, description, course_id')
+          .eq('id', id)
           .single();
         
         if (quizError) throw quizError;
         
-        if (!quizData || !quizData.quiz_questions) {
+        const { data: questionsData, error: questionsError } = await supabase
+          .from('quiz_questions')
+          .select('id, question, options, correct_answer, explanation')
+          .eq('quiz_id', id);
+          
+        if (questionsError) throw questionsError;
+        
+        if (!quizData || !questionsData || questionsData.length === 0) {
           toast({
             title: "Error",
             description: "Quiz not found or has no questions",
@@ -78,13 +70,12 @@ const Quiz = () => {
           return;
         }
         
-        // Format the data
         const formattedQuiz: QuizData = {
           id: quizData.id,
           title: quizData.title,
           description: quizData.description,
           course_id: quizData.course_id,
-          questions: quizData.quiz_questions.map((q: any) => ({
+          questions: questionsData.map((q: any) => ({
             id: q.id,
             question: q.question,
             options: q.options,
@@ -95,18 +86,17 @@ const Quiz = () => {
         
         setQuiz(formattedQuiz);
         
-        // Fetch attempts count
         const { data: attemptsData, error: attemptsError } = await supabase
-          .from("quiz_attempts")
-          .select("attempt_number")
-          .eq("quiz_id", id)
-          .eq("user_id", user.id)
-          .order("attempt_number", { ascending: false })
+          .from('quiz_attempts')
+          .select('attempt_number')
+          .eq('quiz_id', id)
+          .eq('user_id', user.id)
+          .order('attempt_number', { ascending: false })
           .limit(1);
         
         if (attemptsError) throw attemptsError;
         
-        const attempts = attemptsData.length > 0 ? attemptsData[0].attempt_number : 0;
+        const attempts = attemptsData && attemptsData.length > 0 ? attemptsData[0].attempt_number : 0;
         setAttemptsCount(attempts);
         setRemainingAttempts(3 - attempts);
         
@@ -179,19 +169,19 @@ const Quiz = () => {
       const finalScore = calculateScore();
       setScore(finalScore);
       
-      // Save attempt to database
-      const { error } = await supabase.from("quiz_attempts").insert({
-        user_id: user.id,
-        quiz_id: quiz.id,
-        score: finalScore,
-        max_score: 100,
-        attempt_number: attemptsCount + 1,
-        answers: selectedAnswers,
-      });
+      const { error } = await supabase
+        .from('quiz_attempts')
+        .insert({
+          user_id: user.id,
+          quiz_id: quiz.id,
+          score: finalScore,
+          max_score: 100,
+          attempt_number: attemptsCount + 1,
+          answers: selectedAnswers,
+        });
       
       if (error) throw error;
       
-      // Update the attempts count and remaining attempts
       setAttemptsCount(attemptsCount + 1);
       setRemainingAttempts(remainingAttempts - 1);
       
@@ -202,31 +192,31 @@ const Quiz = () => {
         description: `Your score: ${finalScore}%`,
       });
       
-      // Update course progress if needed
       if (finalScore >= 70) {
         const { data: enrollmentData, error: enrollmentError } = await supabase
-          .from("enrollments")
-          .select("completion_percentage")
-          .eq("course_id", quiz.course_id)
-          .eq("user_id", user.id)
+          .from('enrollments')
+          .select('completion_percentage')
+          .eq('course_id', quiz.course_id)
+          .eq('user_id', user.id)
           .single();
           
         if (!enrollmentError && enrollmentData) {
           const newProgress = Math.min(enrollmentData.completion_percentage + 20, 100);
           
           await supabase
-            .from("enrollments")
+            .from('enrollments')
             .update({ completion_percentage: newProgress })
-            .eq("course_id", quiz.course_id)
-            .eq("user_id", user.id);
+            .eq('course_id', quiz.course_id)
+            .eq('user_id', user.id);
             
           if (newProgress === 100) {
-            // Generate certificate if course is completed
-            await supabase.from("certificates").upsert({
-              user_id: user.id,
-              course_id: quiz.course_id,
-              certificate_url: `/certificates/${user.id}-${quiz.course_id}.pdf`,
-            }, { onConflict: 'user_id,course_id' });
+            await supabase
+              .from('certificates')
+              .upsert({
+                user_id: user.id,
+                course_id: quiz.course_id,
+                certificate_url: `/certificates/${user.id}-${quiz.course_id}.pdf`,
+              }, { onConflict: 'user_id,course_id' });
             
             toast({
               title: "Congratulations!",

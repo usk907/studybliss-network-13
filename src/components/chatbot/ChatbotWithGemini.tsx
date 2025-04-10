@@ -73,7 +73,7 @@ const ChatbotWithGemini = () => {
       
       const assistantMessage: Message = {
         role: "assistant",
-        content: data.message || "Sorry, I couldn't generate a response. Please try again.",
+        content: data?.message || "Sorry, I couldn't generate a response. Please try again.",
         timestamp: new Date(),
       };
       

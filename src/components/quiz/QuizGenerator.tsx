@@ -47,9 +47,9 @@ const QuizGenerator = ({ courseId, courseTitle, onQuizCreated }: QuizGeneratorPr
       setTitle(quiz.title || `${courseTitle} Quiz`);
       setDescription(quiz.description || `Test your knowledge of ${courseTitle}`);
 
-      // Create the quiz in the database
+      // Create the quiz in the database using generic approach
       const { data: quizData, error: quizError } = await supabase
-        .from("quizzes")
+        .from('quizzes')
         .insert({
           course_id: courseId,
           title: quiz.title || `${courseTitle} Quiz`,
@@ -72,7 +72,7 @@ const QuizGenerator = ({ courseId, courseTitle, onQuizCreated }: QuizGeneratorPr
       }));
 
       const { error: questionsError } = await supabase
-        .from("quiz_questions")
+        .from('quiz_questions')
         .insert(questions);
 
       if (questionsError) throw questionsError;

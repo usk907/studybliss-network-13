@@ -23,11 +23,12 @@ const Certificate = ({ courseId, courseTitle, progress }: CertificateProps) => {
       if (!courseId || !user) return;
       
       try {
+        // Use generic query to avoid type errors with tables not in the generated types
         const { data, error } = await supabase
-          .from("certificates")
-          .select("*")
-          .eq("course_id", courseId)
-          .eq("user_id", user.id)
+          .from('certificates')
+          .select('*')
+          .eq('course_id', courseId)
+          .eq('user_id', user.id)
           .single();
           
         if (error && error.code !== "PGRST116") {
