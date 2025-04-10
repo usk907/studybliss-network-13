@@ -1,16 +1,18 @@
 
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { AppSidebar } from "./AppSidebar";
 import { Header } from "./Header";
-import { useToast } from "@/hooks/use-toast";
+import { useTheme } from "@/context/ThemeContext";
 
 interface AppLayoutProps {
   children: ReactNode;
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
+  const { theme } = useTheme();
+  
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className={`flex h-screen ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} transition-colors duration-200`}>
       <AppSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />

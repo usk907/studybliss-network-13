@@ -4,6 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "react-router-dom";
+import { useTheme } from "@/context/ThemeContext";
 
 interface CourseCardProps {
   id: string;
@@ -30,8 +31,13 @@ export function CourseCard({
   progress,
   category,
 }: CourseCardProps) {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
   return (
-    <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg group">
+    <Card className={`overflow-hidden transition-all duration-300 hover:shadow-lg group ${
+      isDark ? 'bg-gray-800 border-gray-700 hover:bg-gray-700' : 'bg-white hover:shadow-md'
+    }`}>
       <Link to={`/courses/${id}`}>
         <div className="relative h-40 overflow-hidden">
           <img
@@ -42,14 +48,16 @@ export function CourseCard({
           <Badge className="absolute top-2 right-2 bg-elearn-secondary">{category}</Badge>
         </div>
         <CardHeader className="p-4 pb-2">
-          <h3 className="font-semibold text-lg line-clamp-2 group-hover:text-elearn-primary transition-colors">
+          <h3 className={`font-semibold text-lg line-clamp-2 group-hover:text-elearn-primary transition-colors ${
+            isDark ? 'text-white' : 'text-gray-900'
+          }`}>
             {title}
           </h3>
-          <p className="text-sm text-gray-500">{instructor}</p>
+          <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{instructor}</p>
         </CardHeader>
         <CardContent className="p-4 pt-0">
-          <p className="text-sm text-gray-600 line-clamp-2 mb-3">{description}</p>
-          <div className="flex items-center gap-3 text-xs text-gray-500">
+          <p className={`text-sm line-clamp-2 mb-3 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>{description}</p>
+          <div className={`flex items-center gap-3 text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
             <div className="flex items-center gap-1">
               <Clock size={14} />
               <span>{duration}</span>
@@ -67,11 +75,11 @@ export function CourseCard({
         {progress !== undefined && (
           <CardFooter className="p-4 pt-0">
             <div className="w-full">
-              <div className="flex justify-between text-xs mb-1">
+              <div className={`flex justify-between text-xs mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                 <span>Progress</span>
                 <span>{progress}%</span>
               </div>
-              <Progress value={progress} className="h-1.5" />
+              <Progress value={progress} className={`h-1.5 ${isDark ? 'bg-gray-700' : ''}`} />
             </div>
           </CardFooter>
         )}

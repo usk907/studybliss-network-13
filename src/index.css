@@ -66,3 +66,26 @@
     --ring: 224.3 76.3% 48%;
   }
 }
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .glass-morphism {
+    @apply backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl;
+  }
+
+  .dark-card {
+    @apply bg-gray-800 border-gray-700 text-white;
+  }
+
+  .light-card {
+    @apply bg-white border-gray-200 text-gray-900;
+  }
+}
