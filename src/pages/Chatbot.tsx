@@ -1,20 +1,17 @@
 
 import { AppLayout } from "@/components/layout/AppLayout";
-import { AIChat } from "@/components/chatbot/AIChat";
+import ChatbotWithGemini from "@/components/chatbot/ChatbotWithGemini";
 
 const Chatbot = () => {
   return (
     <AppLayout>
-      <div className="space-y-6 h-[calc(100vh-8rem)]">
-        <h1 className="text-3xl font-bold">Ask AI Assistant</h1>
-        <p className="text-gray-600">
-          Our AI assistant is here to help you with your learning journey. Ask questions about your courses, 
-          get explanations for concepts you're struggling with, or get guidance on assignments.
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold">Learning Assistant</h1>
+        <p className="text-muted-foreground">
+          Ask questions about your courses, get help with assignments, or explore new topics.
         </p>
         
-        <div className="h-[calc(100%-8rem)]">
-          <AIChat />
-        </div>
+        <ChatbotWithGemini />
       </div>
     </AppLayout>
   );

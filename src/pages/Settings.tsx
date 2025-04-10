@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,13 +10,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { Bell, Lock, Mail, Shield, User } from "lucide-react";
+import { Bell, Lock, Mail, Moon, Shield, Sun, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
 
 const Settings = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { theme, toggleTheme } = useTheme();
   const [loading, setLoading] = useState(false);
   
   // Account settings state
@@ -176,6 +178,40 @@ const Settings = () => {
             Manage your account settings and preferences.
           </p>
         </div>
+        
+        {/* Theme Toggle */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              {theme === "light" ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
+              Appearance
+            </CardTitle>
+            <CardDescription>
+              Choose between light and dark themes for the application.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sun className="h-4 w-4" />
+                <Label htmlFor="theme-toggle">Light</Label>
+              </div>
+              <Switch
+                id="theme-toggle"
+                checked={theme === "dark"}
+                onCheckedChange={toggleTheme}
+              />
+              <div className="flex items-center gap-2">
+                <Moon className="h-4 w-4" />
+                <Label htmlFor="theme-toggle">Dark</Label>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <Tabs defaultValue="account" className="w-full">
           <TabsList className="grid grid-cols-4 max-w-xl mb-4">

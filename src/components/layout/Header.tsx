@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Settings, LogOut, BookOpen, UserCircle } from "lucide-react";
+import { Search, Settings, LogOut, BookOpen, UserCircle, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,11 +15,13 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 
 export function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const { user, signOut, avatarUrl } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,14 +80,14 @@ export function Header() {
   };
   
   return (
-    <header className="bg-white border-b border-gray-200 py-3 px-4">
+    <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 py-3 px-4">
       <div className="flex items-center justify-between">
         <form onSubmit={handleSearch} className="flex items-center w-full max-w-xl">
           <div className="relative flex-1">
             <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <Input
               placeholder="Search courses, lessons, and more..."
-              className="pl-10 w-full"
+              className="pl-10 w-full dark:bg-gray-800 dark:text-white"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -97,6 +99,16 @@ export function Header() {
         </form>
         
         <div className="flex items-center gap-3">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={toggleTheme}
+            className="rounded-full"
+            aria-label="Toggle theme"
+          >
+            {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
+          </Button>
+          
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -105,10 +117,10 @@ export function Header() {
                     <AvatarImage src={avatarUrl || ""} alt="User avatar" />
                     <AvatarFallback>{getUserInitials()}</AvatarFallback>
                   </Avatar>
-                  <span className="font-medium">{user.user_metadata?.full_name || user.email?.split('@')[0] || "User"}</span>
+                  <span className="font-medium dark:text-white">{user.user_metadata?.full_name || user.email?.split('@')[0] || "User"}</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-white">
+              <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-gray-900">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleProfileClick} className="cursor-pointer">
