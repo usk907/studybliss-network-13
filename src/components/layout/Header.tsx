@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bell, Search, Settings, LogOut, BookOpen, UserCircle } from "lucide-react";
@@ -19,7 +18,7 @@ import { useAuth } from "@/context/AuthContext";
 export function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, signOut, avatarUrl } = useAuth();
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,11 +32,11 @@ export function Header() {
   };
   
   const handleSignIn = () => {
-    navigate("/auth");
+    navigate("/login");
   };
   
   const handleSignUp = () => {
-    navigate("/auth");
+    navigate("/login?tab=signup");
   };
   
   const handleProfileClick = () => {
@@ -58,7 +57,7 @@ export function Header() {
   const handleLogout = async () => {
     try {
       await signOut();
-      navigate("/auth");
+      navigate("/login");
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -69,6 +68,22 @@ export function Header() {
       title: "Notifications",
       description: "You have 3 unread notifications",
     });
+  };
+
+  const getUserInitials = () => {
+    if (!user) return "U";
+    
+    const fullName = user.user_metadata?.full_name;
+    if (fullName) {
+      return fullName
+        .split(' ')
+        .map(name => name[0])
+        .join('')
+        .toUpperCase()
+        .substring(0, 2);
+    }
+    
+    return user.email?.substring(0, 2).toUpperCase() || "U";
   };
   
   return (
@@ -108,10 +123,10 @@ export function Header() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center gap-2" size="sm">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src="https://i.pravatar.cc/300" alt="User avatar" />
-                      <AvatarFallback>{user.email?.substring(0, 2).toUpperCase() || "U"}</AvatarFallback>
+                      <AvatarImage src={avatarUrl || ""} alt="User avatar" />
+                      <AvatarFallback>{getUserInitials()}</AvatarFallback>
                     </Avatar>
-                    <span className="font-medium">{user.email?.split('@')[0] || "User"}</span>
+                    <span className="font-medium">{user.user_metadata?.full_name || user.email?.split('@')[0] || "User"}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56 bg-white">

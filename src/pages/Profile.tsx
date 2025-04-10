@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -11,12 +10,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
 
 const Profile = () => {
   const { toast: useToastHook } = useToast();
   const [saving, setSaving] = useState(false);
+  const { user, avatarUrl } = useAuth();
   
-  // Form states for various sections
+  const userName = user?.user_metadata?.full_name || 
+                  (user?.email ? user.email.split('@')[0] : "User");
+  
+  const userEmail = user?.email || "user@example.com";
+  
   const [personalInfo, setPersonalInfo] = useState({
     firstName: "Jane",
     lastName: "Doe",
@@ -33,7 +38,6 @@ const Profile = () => {
     endYear: "2024"
   });
   
-  // Preferences states
   const [notifications, setNotifications] = useState({
     email: true,
     courseUpdates: true,
@@ -122,6 +126,22 @@ const Profile = () => {
     toast.success("Preferences reset to default");
   };
 
+  const getUserInitials = () => {
+    if (!user) return "U";
+    
+    const fullName = user.user_metadata?.full_name;
+    if (fullName) {
+      return fullName
+        .split(' ')
+        .map(name => name[0])
+        .join('')
+        .toUpperCase()
+        .substring(0, 2);
+    }
+    
+    return user.email?.substring(0, 2).toUpperCase() || "U";
+  };
+
   return (
     <AppLayout>
       <div className="space-y-6">
@@ -135,12 +155,12 @@ const Profile = () => {
             </CardHeader>
             <CardContent className="flex flex-col items-center">
               <Avatar className="h-32 w-32">
-                <AvatarImage src="https://i.pravatar.cc/300" />
-                <AvatarFallback>JD</AvatarFallback>
+                <AvatarImage src={avatarUrl || ""} />
+                <AvatarFallback>{getUserInitials()}</AvatarFallback>
               </Avatar>
               <div className="mt-4 text-center">
-                <h3 className="text-lg font-semibold">{personalInfo.firstName} {personalInfo.lastName}</h3>
-                <p className="text-sm text-gray-500">{personalInfo.email}</p>
+                <h3 className="text-lg font-semibold">{userName}</h3>
+                <p className="text-sm text-gray-500">{userEmail}</p>
                 <Button 
                   variant="outline" 
                   size="sm" 

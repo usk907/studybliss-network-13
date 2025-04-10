@@ -11,6 +11,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: any | null }>;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: any | null }>;
   signOut: () => Promise<void>;
+  avatarUrl: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -19,6 +20,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -27,10 +29,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         
+        // Check for avatar URL in user metadata
+        const avatar = session?.user?.user_metadata?.avatar_url;
+        if (avatar) {
+          setAvatarUrl(avatar);
+        }
+        
         if (event === 'SIGNED_IN') {
           toast.success("Successfully signed in");
         } else if (event === 'SIGNED_OUT') {
           toast.info("You have been signed out");
+          setAvatarUrl(null);
         }
       }
     );
@@ -39,6 +48,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      
+      // Check for avatar URL in user metadata
+      const avatar = session?.user?.user_metadata?.avatar_url;
+      if (avatar) {
+        setAvatarUrl(avatar);
+      }
+      
       setLoading(false);
     });
 
@@ -87,7 +103,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      session, 
+      loading, 
+      signIn, 
+      signUp, 
+      signOut, 
+      avatarUrl 
+    }}>
       {children}
     </AuthContext.Provider>
   );
