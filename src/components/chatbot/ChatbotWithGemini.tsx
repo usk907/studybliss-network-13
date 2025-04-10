@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Send, Bot, User } from "lucide-react";
+import { Send, Bot, User, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -14,6 +14,12 @@ interface Message {
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
+}
+
+interface CourseContext {
+  id: string;
+  title: string;
+  description: string;
 }
 
 const ChatbotWithGemini = () => {
@@ -30,11 +36,57 @@ const ChatbotWithGemini = () => {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [courseContext, setCourseContext] = useState<CourseContext[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    fetchUserCourses();
+    scrollToBottom();
+  }, []);
   
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+  
+  const fetchUserCourses = async () => {
+    if (!user) return;
+    
+    try {
+      // First get user's enrollments
+      const { data: enrollments, error: enrollmentError } = await supabase
+        .from('enrollments')
+        .select('course_id')
+        .eq('user_id', user.id);
+        
+      if (enrollmentError) throw enrollmentError;
+      
+      if (enrollments && enrollments.length > 0) {
+        const courseIds = enrollments.map(enrollment => enrollment.course_id);
+        
+        // Then get course details
+        const { data: courses, error: coursesError } = await supabase
+          .from('courses')
+          .select('id, title, description')
+          .in('id', courseIds);
+          
+        if (coursesError) throw coursesError;
+        
+        setCourseContext(courses || []);
+      } else {
+        // If no enrollments, get some courses as context anyway
+        const { data: allCourses, error: allCoursesError } = await supabase
+          .from('courses')
+          .select('id, title, description')
+          .limit(5);
+          
+        if (allCoursesError) throw allCoursesError;
+        
+        setCourseContext(allCourses || []);
+      }
+    } catch (error) {
+      console.error("Error fetching course context:", error);
+    }
+  };
   
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -56,13 +108,23 @@ const ChatbotWithGemini = () => {
     setLoading(true);
     
     try {
+      // Prepare course context for the AI
+      const courseContextString = courseContext.length > 0 
+        ? `The user is enrolled in the following courses: ${courseContext.map(c => 
+            `${c.title}: ${c.description ? c.description.substring(0, 100) + "..." : "No description available"}`
+          ).join("; ")}`
+        : "";
+      
       // If the Edge Function is not working properly, fallback to mock responses
       const mockResponses = [
         "I can help explain that concept. What specific part are you having trouble with?",
         "That's a great question about the course material. Let me provide some additional context.",
         "Based on the topics you're studying, I'd recommend reviewing the key concepts in chapter 3.",
         "For that problem, try breaking it down into smaller steps first.",
-        "You're making good progress! Just remember to apply the formula we discussed earlier."
+        "You're making good progress! Just remember to apply the formula we discussed earlier.",
+        "I see you're working on web development. Have you tried using the developer tools to debug your code?",
+        "For this data science problem, you might want to visualize the data first to identify patterns.",
+        "That's a common question in this course. The key thing to remember is how variables are scoped in JavaScript."
       ];
       
       // Try to call the real API first
@@ -76,11 +138,17 @@ const ChatbotWithGemini = () => {
             content: msg.content,
           }));
         
+        // Include course context in the system message
+        const systemMessage = {
+          role: "system",
+          content: `You are a helpful learning assistant for an e-learning platform. ${courseContextString} Provide helpful, concise responses to help the student understand course concepts.`
+        };
+        
         // Call the Gemini function
         const { data, error } = await supabase.functions.invoke("gemini", {
           body: { 
             action: "chat",
-            messages: messageHistory,
+            messages: [systemMessage, ...messageHistory],
           },
         });
         
@@ -96,12 +164,24 @@ const ChatbotWithGemini = () => {
       } catch (error: any) {
         console.error("Error calling Gemini API:", error);
         
-        // Use fallback mock response if the API fails
-        const randomResponse = mockResponses[Math.floor(Math.random() * mockResponses.length)];
+        // Generate a more contextual response based on the user's message
+        let responseContent = "";
+        const userMessageLower = userMessage.content.toLowerCase();
+        
+        if (userMessageLower.includes("assignment") || userMessageLower.includes("homework")) {
+          responseContent = "For this assignment, you should focus on understanding the core concepts first. Take it step-by-step and refer to your course materials.";
+        } else if (userMessageLower.includes("exam") || userMessageLower.includes("test")) {
+          responseContent = "To prepare for your exam, create a study schedule and focus on the key topics highlighted in your course. Practice with sample questions if available.";
+        } else if (userMessageLower.includes("understand") || userMessageLower.includes("explain")) {
+          responseContent = "Let me explain this concept: it's about building connections between ideas. First understand the fundamentals, then see how they relate to more complex topics.";
+        } else {
+          // Use fallback mock response if we can't determine a contextual response
+          responseContent = mockResponses[Math.floor(Math.random() * mockResponses.length)];
+        }
         
         const fallbackMessage: Message = {
           role: "assistant",
-          content: randomResponse,
+          content: responseContent,
           timestamp: new Date(),
         };
         
@@ -140,7 +220,7 @@ const ChatbotWithGemini = () => {
   return (
     <Card className={`flex flex-col h-[calc(100vh-10rem)] ${isDark ? 'bg-gray-800 border-gray-700' : ''}`}>
       <CardHeader className={isDark ? 'border-gray-700' : ''}>
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className={`flex items-center gap-2 ${isDark ? 'text-white' : ''}`}>
           <Bot className="h-5 w-5" />
           Learning Assistant
         </CardTitle>
@@ -196,9 +276,8 @@ const ChatbotWithGemini = () => {
                   <AvatarFallback><Bot size={18} /></AvatarFallback>
                 </Avatar>
                 <div className={`rounded-lg p-4 ${isDark ? 'bg-gray-700' : 'bg-slate-100'} flex items-center space-x-2`}>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Thinking...</span>
                 </div>
               </div>
             </div>
