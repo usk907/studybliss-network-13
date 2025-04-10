@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export function SignUpForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -15,6 +16,7 @@ export function SignUpForm() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [googleError, setGoogleError] = useState(false);
   const { signUp } = useAuth();
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -38,20 +40,29 @@ export function SignUpForm() {
 
   const handleGoogleSignUp = async () => {
     setIsLoading(true);
+    setGoogleError(false);
     
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin + '/login'
+          redirectTo: window.location.origin
         }
       });
       
-      if (error) throw error;
+      if (error) {
+        if (error.message.includes("provider is not enabled")) {
+          setGoogleError(true);
+          toast.error("Google authentication is not enabled in Supabase project settings");
+        } else {
+          throw error;
+        }
+      }
       
     } catch (error: any) {
       console.error("Google signup error:", error);
       toast.error(error.message || "Something went wrong with Google sign up");
+    } finally {
       setIsLoading(false);
     }
   };
@@ -132,6 +143,15 @@ export function SignUpForm() {
             )}
           </Button>
         </form>
+        
+        {googleError && (
+          <Alert variant="destructive" className="mt-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Google authentication is not enabled in your Supabase project settings. Please enable it in the Supabase dashboard under Authentication → Providers → Google.
+            </AlertDescription>
+          </Alert>
+        )}
         
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
