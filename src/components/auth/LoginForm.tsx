@@ -17,19 +17,32 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [googleError, setGoogleError] = useState(false);
+  const [emailConfirmError, setEmailConfirmError] = useState(false);
   const navigate = useNavigate();
   const { signIn } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setEmailConfirmError(false);
     
     try {
-      await signIn(email, password);
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      
+      if (error) {
+        if (error.message.includes("Email not confirmed")) {
+          setEmailConfirmError(true);
+          toast.error("Please confirm your email before logging in");
+        } else {
+          toast.error(error.message || "Something went wrong with logging in");
+        }
+        throw error;
+      }
+      
       navigate("/");
     } catch (error: any) {
       console.error("Login error:", error);
-      // Error is already handled by the AuthContext
+      // Error already handled above
     } finally {
       setIsLoading(false);
     }
@@ -59,6 +72,30 @@ export function LoginForm() {
     } catch (error: any) {
       console.error("Google login error:", error);
       toast.error(error.message || "Something went wrong with Google sign in");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendConfirmation = async () => {
+    if (!email) {
+      toast.error("Please enter your email address");
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+      });
+      
+      if (error) throw error;
+      
+      toast.success("Confirmation email has been resent. Please check your inbox.");
+    } catch (error: any) {
+      console.error("Resend confirmation error:", error);
+      toast.error(error.message || "Failed to resend confirmation email");
     } finally {
       setIsLoading(false);
     }
@@ -125,6 +162,30 @@ export function LoginForm() {
             )}
           </Button>
         </form>
+        
+        {emailConfirmError && (
+          <Alert variant="destructive" className="mt-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="flex flex-col space-y-2">
+              <p>Please confirm your email address before logging in. Check your inbox for a confirmation email.</p>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleResendConfirmation}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  "Resend confirmation email"
+                )}
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
         
         {googleError && (
           <Alert variant="destructive" className="mt-4">

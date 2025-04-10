@@ -8,8 +8,8 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, fullName: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<{ error: any | null }>;
+  signUp: (email: string, password: string, fullName: string) => Promise<{ error: any | null }>;
   signOut: () => Promise<void>;
 }
 
@@ -48,11 +48,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signIn = async (email: string, password: string) => {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      
-      if (error) throw error;
+      return { error };
     } catch (error: any) {
-      toast.error(error.message || "Something went wrong with signing in");
-      throw error;
+      return { error };
     }
   };
 
@@ -68,12 +66,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       });
       
-      if (error) throw error;
+      if (!error) {
+        toast.success("Account created. Please check your email to confirm your account");
+      }
       
-      toast.success("Account created. Please check your email to confirm your account");
+      return { error };
     } catch (error: any) {
-      toast.error(error.message || "Something went wrong with signing up");
-      throw error;
+      return { error };
     }
   };
 
