@@ -30,12 +30,7 @@ export function useCourses(category: string = 'all') {
       setError(null);
       
       try {
-        let query = supabase
-          .from('courses')
-          .select(`
-            *,
-            profiles (full_name)
-          `);
+        let query = supabase.from('courses').select('*');
         
         if (category !== 'all') {
           query = query.eq('category', category);
@@ -45,11 +40,30 @@ export function useCourses(category: string = 'all') {
         
         if (error) throw error;
         
-        // Transform data to match the expected format
-        const formattedCourses = data.map((course: any) => ({
-          ...course,
-          instructor_name: course.profiles?.full_name || 'Unknown Instructor'
-        }));
+        // Since we don't have a direct relationship between courses and profiles,
+        // fetch instructor names separately if needed
+        const formattedCourses = await Promise.all(
+          data.map(async (course) => {
+            let instructorName = 'Unknown Instructor';
+            
+            if (course.instructor_id) {
+              const { data: profileData } = await supabase
+                .from('profiles')
+                .select('full_name')
+                .eq('id', course.instructor_id)
+                .single();
+                
+              if (profileData && profileData.full_name) {
+                instructorName = profileData.full_name;
+              }
+            }
+            
+            return {
+              ...course,
+              instructor_name: instructorName
+            };
+          })
+        );
         
         setCourses(formattedCourses);
       } catch (err: any) {
@@ -84,20 +98,36 @@ export function useFeaturedCourses() {
       try {
         const { data, error } = await supabase
           .from('courses')
-          .select(`
-            *,
-            profiles (full_name)
-          `)
+          .select('*')
           .eq('is_featured', true)
           .limit(4);
         
         if (error) throw error;
         
-        // Transform data to match the expected format
-        const formattedCourses = data.map((course: any) => ({
-          ...course,
-          instructor_name: course.profiles?.full_name || 'Unknown Instructor'
-        }));
+        // Since we don't have a direct relationship between courses and profiles,
+        // fetch instructor names separately if needed
+        const formattedCourses = await Promise.all(
+          data.map(async (course) => {
+            let instructorName = 'Unknown Instructor';
+            
+            if (course.instructor_id) {
+              const { data: profileData } = await supabase
+                .from('profiles')
+                .select('full_name')
+                .eq('id', course.instructor_id)
+                .single();
+                
+              if (profileData && profileData.full_name) {
+                instructorName = profileData.full_name;
+              }
+            }
+            
+            return {
+              ...course,
+              instructor_name: instructorName
+            };
+          })
+        );
         
         setCourses(formattedCourses);
       } catch (err: any) {
@@ -127,20 +157,36 @@ export function usePopularCourses() {
       try {
         const { data, error } = await supabase
           .from('courses')
-          .select(`
-            *,
-            profiles (full_name)
-          `)
+          .select('*')
           .eq('is_popular', true)
           .limit(4);
         
         if (error) throw error;
         
-        // Transform data to match the expected format
-        const formattedCourses = data.map((course: any) => ({
-          ...course,
-          instructor_name: course.profiles?.full_name || 'Unknown Instructor'
-        }));
+        // Since we don't have a direct relationship between courses and profiles,
+        // fetch instructor names separately if needed
+        const formattedCourses = await Promise.all(
+          data.map(async (course) => {
+            let instructorName = 'Unknown Instructor';
+            
+            if (course.instructor_id) {
+              const { data: profileData } = await supabase
+                .from('profiles')
+                .select('full_name')
+                .eq('id', course.instructor_id)
+                .single();
+                
+              if (profileData && profileData.full_name) {
+                instructorName = profileData.full_name;
+              }
+            }
+            
+            return {
+              ...course,
+              instructor_name: instructorName
+            };
+          })
+        );
         
         setCourses(formattedCourses);
       } catch (err: any) {
