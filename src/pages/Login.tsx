@@ -1,11 +1,35 @@
 
+import { useState } from "react";
+import { Navigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LoginForm } from "@/components/auth/LoginForm";
-import { Link } from "react-router-dom";
+import { SignUpForm } from "@/components/auth/SignUpForm";
 
 const Login = () => {
+  const { user, loading } = useAuth();
+  const [searchParams] = useSearchParams();
+  const defaultTab = searchParams.get("tab") === "signup" ? "signup" : "login";
+  const [activeTab, setActiveTab] = useState<"login" | "signup">(defaultTab as "login" | "signup");
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-elearn-primary mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (user) {
+    return <Navigate to="/" replace />;
+  }
+
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
-      {/* Left side - Login form */}
+      {/* Left side - Auth form */}
       <div className="flex-1 flex flex-col justify-center items-center p-8">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
@@ -13,7 +37,25 @@ const Login = () => {
             <p className="text-gray-600 mt-2">Your personalized learning platform</p>
           </div>
           
-          <LoginForm />
+          <Tabs 
+            defaultValue={defaultTab} 
+            value={activeTab} 
+            onValueChange={(value) => setActiveTab(value as "login" | "signup")} 
+            className="w-full"
+          >
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="login">Login</TabsTrigger>
+              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="login">
+              <LoginForm />
+            </TabsContent>
+            
+            <TabsContent value="signup">
+              <SignUpForm />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
       

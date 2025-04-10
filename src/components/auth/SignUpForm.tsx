@@ -43,7 +43,7 @@ export function SignUpForm() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin + '/auth'
+          redirectTo: window.location.origin + '/login'
         }
       });
       
@@ -169,6 +169,17 @@ export function SignUpForm() {
           )}
         </Button>
       </CardContent>
+      <CardFooter className="flex justify-center border-t pt-4">
+        <p className="text-sm text-gray-500">
+          Already have an account? <button 
+            type="button" 
+            className="text-blue-500 hover:text-blue-700"
+            onClick={() => document.querySelector('[value="login"]')?.dispatchEvent(new MouseEvent('click'))}
+          >
+            Sign in
+          </button>
+        </p>
+      </CardFooter>
     </Card>
   );
 }

@@ -9,7 +9,6 @@ import { AuthProvider, useAuth } from "@/context/AuthContext";
 // Pages
 import Index from "./pages/Index";
 import Login from "./pages/Login";
-import Auth from "./pages/Auth";
 import Courses from "./pages/Courses";
 import CourseDetail from "./pages/CourseDetail";
 import Attendance from "./pages/Attendance";
@@ -57,7 +56,6 @@ const AppRoutes = () => {
       <Routes>
         {/* Public routes */}
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-        <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
         
         {/* Protected routes */}
         <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
