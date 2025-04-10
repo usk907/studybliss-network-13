@@ -5,12 +5,18 @@ import { useAuth } from "@/context/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { SignUpForm } from "@/components/auth/SignUpForm";
+import { AdminLogin } from "@/components/auth/AdminLogin";
 
 const Login = () => {
   const { user, loading } = useAuth();
   const [searchParams] = useSearchParams();
-  const defaultTab = searchParams.get("tab") === "signup" ? "signup" : "login";
-  const [activeTab, setActiveTab] = useState<"login" | "signup">(defaultTab as "login" | "signup");
+  const defaultTab = searchParams.get("tab") === "signup" 
+    ? "signup" 
+    : searchParams.get("tab") === "admin" 
+      ? "admin" 
+      : "login";
+  
+  const [activeTab, setActiveTab] = useState<"login" | "signup" | "admin">(defaultTab as "login" | "signup" | "admin");
 
   if (loading) {
     return (
@@ -40,12 +46,13 @@ const Login = () => {
           <Tabs 
             defaultValue={defaultTab} 
             value={activeTab} 
-            onValueChange={(value) => setActiveTab(value as "login" | "signup")} 
+            onValueChange={(value) => setActiveTab(value as "login" | "signup" | "admin")} 
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-2 mb-4">
+            <TabsList className="grid w-full grid-cols-3 mb-4">
               <TabsTrigger value="login">Login</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              <TabsTrigger value="admin">Admin</TabsTrigger>
             </TabsList>
             
             <TabsContent value="login">
@@ -54,6 +61,10 @@ const Login = () => {
             
             <TabsContent value="signup">
               <SignUpForm />
+            </TabsContent>
+
+            <TabsContent value="admin">
+              <AdminLogin />
             </TabsContent>
           </Tabs>
         </div>

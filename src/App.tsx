@@ -19,6 +19,7 @@ import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Quiz from "./components/quiz/Quiz";
+import AdminCourses from "./pages/AdminCourses";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,21 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+  
+  return <>{children}</>;
+};
+
+// Admin route wrapper component
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading, isAdmin } = useAuth();
+  
+  if (loading) {
+    return <div className="flex h-screen items-center justify-center">Loading...</div>;
+  }
+  
+  if (!user || !isAdmin) {
+    return <Navigate to="/login?tab=admin" replace />;
   }
   
   return <>{children}</>;
@@ -69,6 +85,9 @@ const AppRoutes = () => {
         <Route path="/chatbot" element={<ProtectedRoute><Chatbot /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+        
+        {/* Admin routes */}
+        <Route path="/admin/courses" element={<AdminRoute><AdminCourses /></AdminRoute>} />
         
         {/* Fallback route */}
         <Route path="*" element={<NotFound />} />

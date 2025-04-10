@@ -3,3 +3,15 @@ project_id = "fbhuzjffknymvjnaonpk"
 
 [functions.gemini]
 verify_jwt = true
+
+[auth.email]
+enable_sign_up = true
+double_confirm_changes = true
+enable_confirmations = true
+
+[auth.external.github]
+enabled = false
+
+[auth.external.google]
+enabled = false
+
