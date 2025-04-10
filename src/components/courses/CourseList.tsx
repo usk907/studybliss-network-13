@@ -1,61 +1,85 @@
 
 import { CourseCard } from "./CourseCard";
+import { useFeaturedCourses, usePopularCourses, Course } from "@/hooks/useCourses";
+import { Skeleton } from "@/components/ui/skeleton";
 
-// Mock data
-const courses = [
-  {
-    id: "1",
-    title: "Introduction to Python Programming",
-    description: "Learn the fundamentals of Python programming language with hands-on projects.",
-    instructor: "Dr. Alan Smith",
-    thumbnail: "https://images.unsplash.com/photo-1526379879527-8559ecfcb970?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2089&q=80",
-    duration: "8 weeks",
-    students: 1245,
-    lessons: 24,
-    progress: 65,
-    category: "Programming"
-  },
-  {
-    id: "2",
-    title: "Data Science and Machine Learning",
-    description: "Master the essential skills for data analysis and machine learning applications.",
-    instructor: "Prof. Sarah Johnson",
-    thumbnail: "https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80",
-    duration: "10 weeks",
-    students: 987,
-    lessons: 32,
-    progress: 25,
-    category: "Data Science"
-  },
-  {
-    id: "3",
-    title: "Web Development Fundamentals",
-    description: "Get started with HTML, CSS, and JavaScript to build modern web applications.",
-    instructor: "Mark Williams",
-    thumbnail: "https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80",
-    duration: "6 weeks",
-    students: 1876,
-    lessons: 18,
-    category: "Web Development"
-  },
-  {
-    id: "4",
-    title: "Artificial Intelligence Ethics",
-    description: "Explore ethical considerations in AI development and deployment.",
-    instructor: "Dr. Lisa Chen",
-    thumbnail: "https://images.unsplash.com/photo-1535378917042-10a22c95931a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1856&q=80",
-    duration: "4 weeks",
-    students: 542,
-    lessons: 12,
-    category: "AI"
+interface CourseListProps {
+  type?: 'featured' | 'popular' | 'all';
+  courses?: Course[];
+  isLoading?: boolean;
+}
+
+export function CourseList({ type = 'all', courses: propCourses, isLoading: propIsLoading }: CourseListProps) {
+  const { courses: featuredCourses, isLoading: featuredLoading } = useFeaturedCourses();
+  const { courses: popularCourses, isLoading: popularLoading } = usePopularCourses();
+  
+  let displayCourses: Course[] = [];
+  let isLoading = propIsLoading;
+  
+  if (propCourses) {
+    displayCourses = propCourses;
+    isLoading = propIsLoading;
+  } else {
+    switch (type) {
+      case 'featured':
+        displayCourses = featuredCourses;
+        isLoading = featuredLoading;
+        break;
+      case 'popular':
+        displayCourses = popularCourses;
+        isLoading = popularLoading;
+        break;
+      default:
+        // For the 'all' type, we currently don't have a specific hook,
+        // so we're reusing featured courses for now
+        displayCourses = featuredCourses;
+        isLoading = featuredLoading;
+    }
   }
-];
 
-export function CourseList() {
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="space-y-3">
+            <Skeleton className="h-40 w-full rounded-md" />
+            <Skeleton className="h-6 w-3/4" />
+            <Skeleton className="h-4 w-1/2" />
+            <Skeleton className="h-4 w-full" />
+            <div className="flex space-x-4">
+              <Skeleton className="h-4 w-14" />
+              <Skeleton className="h-4 w-14" />
+              <Skeleton className="h-4 w-14" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (displayCourses.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-500">No courses found.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      {courses.map((course) => (
-        <CourseCard key={course.id} {...course} />
+      {displayCourses.map((course) => (
+        <CourseCard 
+          key={course.id} 
+          id={course.id}
+          title={course.title}
+          description={course.description || ''}
+          instructor={course.instructor_name || 'Unknown Instructor'}
+          thumbnail={course.image_url || 'https://images.unsplash.com/photo-1526379879527-8559ecfcb970?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2089&q=80'}
+          duration={course.duration ? `${course.duration} mins` : 'Flexible'}
+          students={1200} // This is hardcoded for now, could be calculated from enrollments
+          lessons={24} // This is hardcoded for now, could be fetched from lessons table
+          category={course.category || 'General'}
+        />
       ))}
     </div>
   );

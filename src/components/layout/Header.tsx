@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, Search, User, Settings, LogOut, BookOpen, UserCircle } from "lucide-react";
+import { Bell, Search, Settings, LogOut, BookOpen, UserCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,11 +14,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/AuthContext";
 
 export function Header() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true); // Default to logged in for the demo
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,11 +33,11 @@ export function Header() {
   };
   
   const handleSignIn = () => {
-    navigate("/login");
+    navigate("/auth");
   };
   
   const handleSignUp = () => {
-    navigate("/login");
+    navigate("/auth");
   };
   
   const handleProfileClick = () => {
@@ -54,13 +55,13 @@ export function Header() {
     });
   };
   
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out",
-    });
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate("/auth");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
   
   const handleNotificationsClick = () => {
@@ -90,7 +91,7 @@ export function Header() {
         </form>
         
         <div className="flex items-center gap-3">
-          {isLoggedIn ? (
+          {user ? (
             <>
               <Button 
                 variant="ghost" 
@@ -108,9 +109,9 @@ export function Header() {
                   <Button variant="ghost" className="flex items-center gap-2" size="sm">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src="https://i.pravatar.cc/300" alt="User avatar" />
-                      <AvatarFallback>US</AvatarFallback>
+                      <AvatarFallback>{user.email?.substring(0, 2).toUpperCase() || "U"}</AvatarFallback>
                     </Avatar>
-                    <span className="font-medium">User</span>
+                    <span className="font-medium">{user.email?.split('@')[0] || "User"}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56 bg-white">

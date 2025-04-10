@@ -13,17 +13,25 @@ import {
 import { Input } from "@/components/ui/input";
 import { Filter, Search, SlidersHorizontal } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useCourses } from "@/hooks/useCourses";
 
 const Courses = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [category, setCategory] = useState("all");
+  const { courses, isLoading } = useCourses(category);
+  
+  // Filter courses by search query
+  const filteredCourses = courses.filter(course => 
+    course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (course.description && course.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       toast({
-        title: "Search initiated",
-        description: `Searching for "${searchQuery}" courses`,
+        title: "Search applied",
+        description: `Showing results for "${searchQuery}"`,
       });
     }
   };
@@ -47,20 +55,6 @@ const Courses = () => {
     toast({
       title: "Enrollment",
       description: "Opening enrollment process",
-    });
-  };
-
-  const handleViewAllFeatured = () => {
-    toast({
-      title: "Featured Courses",
-      description: "Viewing all featured courses",
-    });
-  };
-
-  const handleViewAllPopular = () => {
-    toast({
-      title: "Popular Courses",
-      description: "Viewing all popular courses",
     });
   };
 
@@ -106,6 +100,22 @@ const Courses = () => {
           </div>
         </div>
 
+        {/* All Courses */}
+        <div>
+          <h2 className="text-xl font-semibold mb-4">All Courses</h2>
+          <CourseList courses={filteredCourses} isLoading={isLoading} />
+          {filteredCourses.length > 0 && (
+            <div className="mt-4 flex justify-center">
+              <Button 
+                onClick={handleEnrollNow}
+                className="px-6"
+              >
+                Enroll Now
+              </Button>
+            </div>
+          )}
+        </div>
+
         {/* Featured Courses */}
         <div>
           <div className="flex justify-between items-center mb-4">
@@ -113,20 +123,15 @@ const Courses = () => {
             <Button 
               variant="link" 
               className="text-elearn-primary"
-              onClick={handleViewAllFeatured}
+              onClick={() => toast({
+                title: "Featured Courses",
+                description: "Viewing all featured courses",
+              })}
             >
               View all
             </Button>
           </div>
-          <CourseList />
-          <div className="mt-4 flex justify-center">
-            <Button 
-              onClick={handleEnrollNow}
-              className="px-6"
-            >
-              Enroll Now
-            </Button>
-          </div>
+          <CourseList type="featured" />
         </div>
 
         {/* Popular Courses */}
@@ -136,12 +141,15 @@ const Courses = () => {
             <Button 
               variant="link" 
               className="text-elearn-primary"
-              onClick={handleViewAllPopular}
+              onClick={() => toast({
+                title: "Popular Courses",
+                description: "Viewing all popular courses",
+              })}
             >
               View all
             </Button>
           </div>
-          <CourseList />
+          <CourseList type="popular" />
         </div>
       </div>
     </AppLayout>
