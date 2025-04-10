@@ -30,10 +30,12 @@ export function useCourses(category: string = 'all') {
       setError(null);
       
       try {
-        let query = supabase.from('courses').select(`
-          *,
-          profiles!courses_instructor_id_fkey (full_name)
-        `);
+        let query = supabase
+          .from('courses')
+          .select(`
+            *,
+            profiles (full_name)
+          `);
         
         if (category !== 'all') {
           query = query.eq('category', category);
@@ -84,7 +86,7 @@ export function useFeaturedCourses() {
           .from('courses')
           .select(`
             *,
-            profiles!courses_instructor_id_fkey (full_name)
+            profiles (full_name)
           `)
           .eq('is_featured', true)
           .limit(4);
@@ -127,7 +129,7 @@ export function usePopularCourses() {
           .from('courses')
           .select(`
             *,
-            profiles!courses_instructor_id_fkey (full_name)
+            profiles (full_name)
           `)
           .eq('is_popular', true)
           .limit(4);
