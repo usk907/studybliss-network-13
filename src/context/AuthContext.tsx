@@ -2,7 +2,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 interface AuthContextType {
   user: User | null;
@@ -19,7 +19,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -29,15 +28,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null);
         
         if (event === 'SIGNED_IN') {
-          toast({
-            title: "Signed in",
-            description: "You have successfully signed in",
-          });
+          toast.success("Successfully signed in");
         } else if (event === 'SIGNED_OUT') {
-          toast({
-            title: "Signed out",
-            description: "You have been signed out",
-          });
+          toast.info("You have been signed out");
         }
       }
     );
@@ -50,7 +43,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     return () => subscription.unsubscribe();
-  }, [toast]);
+  }, []);
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -58,11 +51,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (error) throw error;
     } catch (error: any) {
-      toast({
-        title: "Error signing in",
-        description: error.message || "Something went wrong",
-        variant: "destructive",
-      });
+      toast.error(error.message || "Something went wrong with signing in");
       throw error;
     }
   };
@@ -81,16 +70,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (error) throw error;
       
-      toast({
-        title: "Account created",
-        description: "Please check your email to confirm your account",
-      });
+      toast.success("Account created. Please check your email to confirm your account");
     } catch (error: any) {
-      toast({
-        title: "Error signing up",
-        description: error.message || "Something went wrong",
-        variant: "destructive",
-      });
+      toast.error(error.message || "Something went wrong with signing up");
       throw error;
     }
   };
@@ -100,11 +82,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
     } catch (error: any) {
-      toast({
-        title: "Error signing out",
-        description: error.message || "Something went wrong",
-        variant: "destructive",
-      });
+      toast.error(error.message || "Something went wrong with signing out");
       throw error;
     }
   };

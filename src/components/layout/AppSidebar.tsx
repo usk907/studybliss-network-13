@@ -1,10 +1,12 @@
 
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Book, Calendar, ChevronLeft, ChevronRight, Home, MessageSquare, Settings, User, BarChart2 } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Book, Calendar, ChevronLeft, ChevronRight, Home, LogOut, MessageSquare, Settings, User, BarChart2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/context/AuthContext';
+import { toast } from 'sonner';
 
 interface SidebarLinkProps {
   to: string;
@@ -44,6 +46,17 @@ const SidebarLink = ({ to, icon: Icon, label, isCollapsed, isActive }: SidebarLi
 export function AppSidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate('/login');
+    } catch (error) {
+      toast.error("Failed to log out. Please try again.");
+    }
+  };
 
   return (
     <div
@@ -113,26 +126,43 @@ export function AppSidebar() {
       
       {/* Footer */}
       <div className="p-4 border-t border-gray-200">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link 
-                to="/settings" 
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-md hover:bg-blue-100 transition-colors w-full text-left",
-                  location.pathname === '/settings' ? "bg-blue-100 text-elearn-primary font-medium" : ""
-                )}
-              >
-                <Settings className={cn(
-                  "h-5 w-5", 
-                  location.pathname === '/settings' ? "text-elearn-primary" : "text-gray-500"
-                )} />
-                {!isCollapsed && <span className="text-gray-700">Settings</span>}
-              </Link>
-            </TooltipTrigger>
-            {isCollapsed && <TooltipContent side="right">Settings</TooltipContent>}
-          </Tooltip>
-        </TooltipProvider>
+        <div className="flex flex-col gap-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link 
+                  to="/settings" 
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2 rounded-md hover:bg-blue-100 transition-colors w-full text-left",
+                    location.pathname === '/settings' ? "bg-blue-100 text-elearn-primary font-medium" : ""
+                  )}
+                >
+                  <Settings className={cn(
+                    "h-5 w-5", 
+                    location.pathname === '/settings' ? "text-elearn-primary" : "text-gray-500"
+                  )} />
+                  {!isCollapsed && <span className="text-gray-700">Settings</span>}
+                </Link>
+              </TooltipTrigger>
+              {isCollapsed && <TooltipContent side="right">Settings</TooltipContent>}
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button 
+                  onClick={handleLogout} 
+                  className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-red-50 transition-colors w-full text-left"
+                >
+                  <LogOut className="h-5 w-5 text-red-500" />
+                  {!isCollapsed && <span className="text-red-500">Logout</span>}
+                </button>
+              </TooltipTrigger>
+              {isCollapsed && <TooltipContent side="right">Logout</TooltipContent>}
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </div>
     </div>
   );
