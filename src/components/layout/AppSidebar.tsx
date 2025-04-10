@@ -5,7 +5,6 @@ import { Book, Calendar, ChevronLeft, ChevronRight, Home, MessageSquare, Setting
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
-import { toast } from '@/hooks/use-toast';
 
 interface SidebarLinkProps {
   to: string;
@@ -45,13 +44,6 @@ const SidebarLink = ({ to, icon: Icon, label, isCollapsed, isActive }: SidebarLi
 export function AppSidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
-  
-  const handleSettingsClick = () => {
-    toast({
-      title: "Settings",
-      description: "Settings page is under construction",
-    });
-  };
 
   return (
     <div
@@ -124,13 +116,19 @@ export function AppSidebar() {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <button 
-                onClick={handleSettingsClick}
-                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-blue-100 transition-colors w-full text-left"
+              <Link 
+                to="/settings" 
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2 rounded-md hover:bg-blue-100 transition-colors w-full text-left",
+                  location.pathname === '/settings' ? "bg-blue-100 text-elearn-primary font-medium" : ""
+                )}
               >
-                <Settings className="h-5 w-5 text-gray-500" />
+                <Settings className={cn(
+                  "h-5 w-5", 
+                  location.pathname === '/settings' ? "text-elearn-primary" : "text-gray-500"
+                )} />
                 {!isCollapsed && <span className="text-gray-700">Settings</span>}
-              </button>
+              </Link>
             </TooltipTrigger>
             {isCollapsed && <TooltipContent side="right">Settings</TooltipContent>}
           </Tooltip>

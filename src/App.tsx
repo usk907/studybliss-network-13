@@ -16,6 +16,7 @@ import Attendance from "./pages/Attendance";
 import Performance from "./pages/Performance";
 import Chatbot from "./pages/Chatbot";
 import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/performance" element={<Performance />} />
             <Route path="/chatbot" element={<Chatbot />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
