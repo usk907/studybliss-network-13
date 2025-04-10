@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Filter, Search } from "lucide-react";
+import { Filter, Search, SlidersHorizontal } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 const Courses = () => {
@@ -30,8 +30,8 @@ const Courses = () => {
   
   const handleFilter = () => {
     toast({
-      title: "Filters",
-      description: "Advanced filter options would appear here",
+      title: "Advanced Filters",
+      description: "Showing advanced filter options",
     });
   };
   
@@ -40,6 +40,27 @@ const Courses = () => {
     toast({
       title: "Category filter applied",
       description: `Showing ${value === "all" ? "all categories" : value} courses`,
+    });
+  };
+
+  const handleEnrollNow = () => {
+    toast({
+      title: "Enrollment",
+      description: "Opening enrollment process",
+    });
+  };
+
+  const handleViewAllFeatured = () => {
+    toast({
+      title: "Featured Courses",
+      description: "Viewing all featured courses",
+    });
+  };
+
+  const handleViewAllPopular = () => {
+    toast({
+      title: "Popular Courses",
+      description: "Viewing all popular courses",
     });
   };
 
@@ -63,7 +84,7 @@ const Courses = () => {
               className="flex items-center gap-2"
               onClick={handleFilter}
             >
-              <Filter className="h-4 w-4" />
+              <SlidersHorizontal className="h-4 w-4" />
               <span className="hidden sm:inline">Filters</span>
             </Button>
             <Select 
@@ -74,7 +95,7 @@ const Courses = () => {
               <SelectTrigger className="w-[120px]">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 <SelectItem value="all">All Categories</SelectItem>
                 <SelectItem value="programming">Programming</SelectItem>
                 <SelectItem value="data-science">Data Science</SelectItem>
@@ -87,13 +108,39 @@ const Courses = () => {
 
         {/* Featured Courses */}
         <div>
-          <h2 className="text-xl font-semibold mb-4">Featured Courses</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">Featured Courses</h2>
+            <Button 
+              variant="link" 
+              className="text-elearn-primary"
+              onClick={handleViewAllFeatured}
+            >
+              View all
+            </Button>
+          </div>
           <CourseList />
+          <div className="mt-4 flex justify-center">
+            <Button 
+              onClick={handleEnrollNow}
+              className="px-6"
+            >
+              Enroll Now
+            </Button>
+          </div>
         </div>
 
         {/* Popular Courses */}
         <div>
-          <h2 className="text-xl font-semibold mb-4">Popular Courses</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">Popular Courses</h2>
+            <Button 
+              variant="link" 
+              className="text-elearn-primary"
+              onClick={handleViewAllPopular}
+            >
+              View all
+            </Button>
+          </div>
           <CourseList />
         </div>
       </div>
