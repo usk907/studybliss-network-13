@@ -12,8 +12,6 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: any | null }>;
   signOut: () => Promise<void>;
   avatarUrl: string | null;
-  isAdmin: boolean;
-  checkAdminStatus: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,23 +21,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  const checkAdminStatus = async () => {
-    if (!user) return false;
-    
-    try {
-      // Check if the email is an admin email (for simplicity)
-      // In a real app, we would check for admin in a database
-      const isAdminUser = user.email?.endsWith('@admin.com') || false;
-      setIsAdmin(isAdminUser);
-      return isAdminUser;
-    } catch (error) {
-      console.error("Error checking admin status:", error);
-      setIsAdmin(false);
-      return false;
-    }
-  };
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -56,14 +37,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         if (event === 'SIGNED_IN') {
           toast.success("Successfully signed in");
-          // Check admin status when user signs in
-          if (session?.user) {
-            checkAdminStatus();
-          }
         } else if (event === 'SIGNED_OUT') {
           toast.info("You have been signed out");
           setAvatarUrl(null);
-          setIsAdmin(false);
         }
       }
     );
@@ -77,11 +53,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const avatar = session?.user?.user_metadata?.avatar_url;
       if (avatar) {
         setAvatarUrl(avatar);
-      }
-      
-      // Check admin status on initial load
-      if (session?.user) {
-        checkAdminStatus();
       }
       
       setLoading(false);
@@ -139,9 +110,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       signIn, 
       signUp, 
       signOut, 
-      avatarUrl,
-      isAdmin,
-      checkAdminStatus
+      avatarUrl
     }}>
       {children}
     </AuthContext.Provider>
