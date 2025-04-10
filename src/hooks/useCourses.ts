@@ -30,12 +30,10 @@ export function useCourses(category: string = 'all') {
       setError(null);
       
       try {
-        let query = supabase
-          .from('courses')
-          .select(`
-            *,
-            profiles!courses_instructor_id_fkey (full_name)
-          `);
+        let query = supabase.from('courses').select(`
+          *,
+          profiles!courses_instructor_id_fkey (full_name)
+        `);
         
         if (category !== 'all') {
           query = query.eq('category', category);
@@ -46,7 +44,7 @@ export function useCourses(category: string = 'all') {
         if (error) throw error;
         
         // Transform data to match the expected format
-        const formattedCourses = data.map(course => ({
+        const formattedCourses = data.map((course: any) => ({
           ...course,
           instructor_name: course.profiles?.full_name || 'Unknown Instructor'
         }));
@@ -94,7 +92,7 @@ export function useFeaturedCourses() {
         if (error) throw error;
         
         // Transform data to match the expected format
-        const formattedCourses = data.map(course => ({
+        const formattedCourses = data.map((course: any) => ({
           ...course,
           instructor_name: course.profiles?.full_name || 'Unknown Instructor'
         }));
@@ -137,7 +135,7 @@ export function usePopularCourses() {
         if (error) throw error;
         
         // Transform data to match the expected format
-        const formattedCourses = data.map(course => ({
+        const formattedCourses = data.map((course: any) => ({
           ...course,
           instructor_name: course.profiles?.full_name || 'Unknown Instructor'
         }));

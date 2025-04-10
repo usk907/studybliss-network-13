@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -15,33 +16,58 @@ export function LoginForm() {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate login process
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      
+      if (error) throw error;
+      
       toast({
         title: "Success",
         description: "You have successfully logged in.",
       });
+      
       navigate("/"); // Redirect to dashboard after login
-    }, 1500);
+    } catch (error: any) {
+      console.error("Login error:", error);
+      toast({
+        title: "Error signing in",
+        description: error.message || "Something went wrong",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleGoogleLogin = () => {
+  const handleGoogleLogin = async () => {
     setIsLoading(true);
     
-    // Simulate Google login process
-    setTimeout(() => {
-      setIsLoading(false);
-      toast({
-        title: "Success",
-        description: "Google authentication successful.",
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin + '/auth'
+        }
       });
-      navigate("/"); // Redirect to dashboard after login
-    }, 1500);
+      
+      if (error) throw error;
+      
+    } catch (error: any) {
+      console.error("Google login error:", error);
+      toast({
+        title: "Error signing in with Google",
+        description: error.message || "Something went wrong",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -114,7 +140,7 @@ export function LoginForm() {
       </Tabs>
       <CardFooter className="flex justify-center border-t pt-4">
         <p className="text-sm text-gray-500">
-          Don't have an account? <Link to="/register" className="text-blue-500 hover:text-blue-700">Sign up</Link>
+          Don't have an account? <Link to="/auth" className="text-blue-500 hover:text-blue-700">Sign up</Link>
         </p>
       </CardFooter>
     </Card>
