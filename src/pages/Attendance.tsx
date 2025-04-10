@@ -6,27 +6,23 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 
 const Attendance = () => {
-  // Mock attendance statistics
+  // Modified attendance statistics (removed late, excused, holiday)
   const attendanceStats = {
     present: 24,
-    absent: 3,
-    late: 2,
-    excused: 1,
+    absent: 6,
     total: 30,
   };
 
   const presentPercentage = Math.round((attendanceStats.present / attendanceStats.total) * 100);
   const absentPercentage = Math.round((attendanceStats.absent / attendanceStats.total) * 100);
-  const latePercentage = Math.round((attendanceStats.late / attendanceStats.total) * 100);
-  const excusedPercentage = Math.round((attendanceStats.excused / attendanceStats.total) * 100);
 
   return (
     <AppLayout>
       <div className="space-y-6">
         <h1 className="text-3xl font-bold">Attendance</h1>
         
-        {/* Attendance Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Attendance Statistics - reduced to only present and absent */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-green-600">Present</CardTitle>
@@ -55,38 +51,6 @@ const Attendance = () => {
               />
               <p className="text-xs text-muted-foreground mt-1">
                 {absentPercentage}% of classes
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-amber-600">Late</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{attendanceStats.late} days</div>
-              <Progress 
-                value={latePercentage} 
-                className="h-2 mt-2 bg-gray-100" 
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                {latePercentage}% of classes
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-blue-600">Excused</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{attendanceStats.excused} days</div>
-              <Progress 
-                value={excusedPercentage} 
-                className="h-2 mt-2 bg-gray-100" 
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                {excusedPercentage}% of classes
               </p>
             </CardContent>
           </Card>

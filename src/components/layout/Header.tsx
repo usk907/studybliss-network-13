@@ -1,6 +1,7 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, Search, Settings, LogOut, BookOpen, UserCircle } from "lucide-react";
+import { Search, Settings, LogOut, BookOpen, UserCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -48,10 +49,7 @@ export function Header() {
   };
   
   const handleSettingsClick = () => {
-    toast({
-      title: "Settings",
-      description: "Settings page is under construction",
-    });
+    navigate("/settings");
   };
   
   const handleLogout = async () => {
@@ -61,13 +59,6 @@ export function Header() {
     } catch (error) {
       console.error("Logout error:", error);
     }
-  };
-  
-  const handleNotificationsClick = () => {
-    toast({
-      title: "Notifications",
-      description: "You have 3 unread notifications",
-    });
   };
 
   const getUserInitials = () => {
@@ -107,51 +98,38 @@ export function Header() {
         
         <div className="flex items-center gap-3">
           {user ? (
-            <>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="relative" 
-                onClick={handleNotificationsClick}
-                aria-label="Notifications"
-              >
-                <Bell className="h-5 w-5" />
-                <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
-              </Button>
-              
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center gap-2" size="sm">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={avatarUrl || ""} alt="User avatar" />
-                      <AvatarFallback>{getUserInitials()}</AvatarFallback>
-                    </Avatar>
-                    <span className="font-medium">{user.user_metadata?.full_name || user.email?.split('@')[0] || "User"}</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 bg-white">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleProfileClick} className="cursor-pointer">
-                    <UserCircle className="mr-2 h-4 w-4" />
-                    Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleMyCoursesClick} className="cursor-pointer">
-                    <BookOpen className="mr-2 h-4 w-4" />
-                    My Courses
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleSettingsClick} className="cursor-pointer">
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-2" size="sm">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={avatarUrl || ""} alt="User avatar" />
+                    <AvatarFallback>{getUserInitials()}</AvatarFallback>
+                  </Avatar>
+                  <span className="font-medium">{user.user_metadata?.full_name || user.email?.split('@')[0] || "User"}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 bg-white">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleProfileClick} className="cursor-pointer">
+                  <UserCircle className="mr-2 h-4 w-4" />
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleMyCoursesClick} className="cursor-pointer">
+                  <BookOpen className="mr-2 h-4 w-4" />
+                  My Courses
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSettingsClick} className="cursor-pointer">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <div className="flex items-center gap-2">
               <Button variant="outline" onClick={handleSignIn}>Sign In</Button>

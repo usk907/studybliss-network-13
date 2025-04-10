@@ -11,24 +11,24 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 
-// Mock attendance data
-// status: "present" | "absent" | "late" | "excused" | "holiday"
+// Modified attendance data - removed late, excused, holiday
+// status: "present" | "absent"
 const mockAttendanceData: Record<string, { status: string; note?: string }> = {
   "2023-09-01": { status: "present" },
   "2023-09-02": { status: "absent", note: "Sick" },
-  "2023-09-05": { status: "late", note: "20 minutes late" },
+  "2023-09-05": { status: "present" },
   "2023-09-07": { status: "present" },
-  "2023-09-08": { status: "excused", note: "Doctor appointment" },
+  "2023-09-08": { status: "absent", note: "Doctor appointment" },
   "2023-09-11": { status: "present" },
   "2023-09-12": { status: "present" },
-  "2023-09-15": { status: "holiday", note: "School holiday" },
+  "2023-09-15": { status: "present" },
   "2023-09-18": { status: "present" },
   "2023-09-19": { status: "present" },
   "2023-09-20": { status: "present" },
   "2023-09-21": { status: "absent" },
   "2023-09-25": { status: "present" },
   "2023-09-26": { status: "present" },
-  "2023-09-27": { status: "late", note: "10 minutes late" },
+  "2023-09-27": { status: "present" },
   "2023-09-28": { status: "present" },
   "2023-09-29": { status: "present" },
 };
@@ -77,12 +77,6 @@ export function AttendanceCalendar() {
         return "bg-green-500";
       case "absent":
         return "bg-red-500";
-      case "late":
-        return "bg-amber-500";
-      case "excused":
-        return "bg-blue-400";
-      case "holiday":
-        return "bg-purple-400";
       default:
         return "bg-gray-200";
     }
@@ -104,9 +98,6 @@ export function AttendanceCalendar() {
             modifiersStyles={{
               present: { color: "white", backgroundColor: "#10b981" },
               absent: { color: "white", backgroundColor: "#ef4444" },
-              late: { color: "white", backgroundColor: "#f59e0b" },
-              excused: { color: "white", backgroundColor: "#3b82f6" },
-              holiday: { color: "white", backgroundColor: "#8b5cf6" },
             }}
             modifiers={{
               present: Object.entries(mockAttendanceData)
@@ -114,15 +105,6 @@ export function AttendanceCalendar() {
                 .map(([date]) => new Date(date)),
               absent: Object.entries(mockAttendanceData)
                 .filter(([_, data]) => data.status === "absent")
-                .map(([date]) => new Date(date)),
-              late: Object.entries(mockAttendanceData)
-                .filter(([_, data]) => data.status === "late")
-                .map(([date]) => new Date(date)),
-              excused: Object.entries(mockAttendanceData)
-                .filter(([_, data]) => data.status === "excused")
-                .map(([date]) => new Date(date)),
-              holiday: Object.entries(mockAttendanceData)
-                .filter(([_, data]) => data.status === "holiday")
                 .map(([date]) => new Date(date)),
             }}
           />
@@ -133,9 +115,6 @@ export function AttendanceCalendar() {
               <div className="flex gap-2 flex-wrap">
                 <Badge className="bg-green-500 cursor-pointer" onClick={() => toast({title: "Present", description: "Days you attended class"})}>Present</Badge>
                 <Badge className="bg-red-500 cursor-pointer" onClick={() => toast({title: "Absent", description: "Days you missed class"})}>Absent</Badge>
-                <Badge className="bg-amber-500 cursor-pointer" onClick={() => toast({title: "Late", description: "Days you arrived late to class"})}>Late</Badge>
-                <Badge className="bg-blue-400 cursor-pointer" onClick={() => toast({title: "Excused", description: "Absence with valid excuse"})}>Excused</Badge>
-                <Badge className="bg-purple-400 cursor-pointer" onClick={() => toast({title: "Holiday", description: "School holiday - no class"})}>Holiday</Badge>
               </div>
             </div>
             
