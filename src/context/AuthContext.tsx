@@ -29,9 +29,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (!userId) return false;
     
     try {
-      // Fix: Cast to any to avoid type incompatibility with RPC parameters
-      const { data, error } = await supabase
-        .rpc('is_admin', { user_id: userId as any });
+      // Cast both the function name and params to any to bypass type checking
+      const { data, error } = await (supabase.rpc as any)('is_admin', { user_id: userId });
       
       if (error) {
         console.error('Error checking admin status:', error);
@@ -101,41 +100,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signIn = async (email: string, password: string, employeeId?: string) => {
     try {
-      let credentials: any = { email, password };
+      // Basic credentials without custom data
+      const credentials = { email, password };
       
-      // Fix: Use proper structure for auth options that matches Supabase's expected types
-      if (employeeId) {
-        credentials = {
-          email,
-          password,
-          options: {
-            data: { 
-              employee_id: employeeId 
-            }
-          }
-        };
-      }
-
+      // Sign in with the basic credentials
       const { error } = await supabase.auth.signInWithPassword(credentials);
       
+      // If login is successful and employee ID was provided, update the user metadata
       if (!error && employeeId) {
-        // If login is successful and employee ID was provided, update the profile
+        // Get the current user
         const { data: userData } = await supabase.auth.getUser();
+        
         if (userData?.user) {
-          // Fix: Only include fields that exist in the profiles table
-          const { error: updateError } = await supabase
-            .from('profiles')
-            .update({ 
-              // Only include fields that actually exist in the table
-              // The 'role' field doesn't exist in the profiles table
-              employee_id: employeeId
-            })
-            .eq('id', userData.user.id);
+          // Update the user's metadata through a separate call
+          // This updates the profiles table which is created by Supabase auth
+          // We don't add employee_id here as it might not be in the profiles schema
+          const { error: metadataError } = await supabase.auth.updateUser({
+            data: { is_employee: true }
+          });
           
-          if (updateError) {
-            console.error('Error updating profile with employee ID:', updateError);
+          if (metadataError) {
+            console.error('Error updating user metadata:', metadataError);
           } else {
-            setIsAdmin(true);
+            // Check if the user is now an admin
+            const adminStatus = await checkUserRole(userData.user.id);
+            setIsAdmin(adminStatus);
           }
         }
       }
