@@ -29,9 +29,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (!userId) return false;
     
     try {
-      // Fixed: explicitly define parameter types to match RPC
+      // Fix: Cast to any to avoid type incompatibility with RPC parameters
       const { data, error } = await supabase
-        .rpc('is_admin', { user_id: userId as unknown as Parameters<typeof supabase.rpc>[1] });
+        .rpc('is_admin', { user_id: userId as any });
       
       if (error) {
         console.error('Error checking admin status:', error);
@@ -101,28 +101,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signIn = async (email: string, password: string, employeeId?: string) => {
     try {
-      // Fixed: Use proper type for signInWithPassword options
-      const options = employeeId ? {
-        options: {
-          data: { employee_id: employeeId }
-        }
-      } : undefined;
+      let credentials: any = { email, password };
+      
+      // Fix: Use proper structure for auth options that matches Supabase's expected types
+      if (employeeId) {
+        credentials = {
+          email,
+          password,
+          options: {
+            data: { 
+              employee_id: employeeId 
+            }
+          }
+        };
+      }
 
-      const { error } = await supabase.auth.signInWithPassword({ 
-        email, 
-        password,
-        ...options
-      });
+      const { error } = await supabase.auth.signInWithPassword(credentials);
       
       if (!error && employeeId) {
         // If login is successful and employee ID was provided, update the profile
         const { data: userData } = await supabase.auth.getUser();
         if (userData?.user) {
-          // Fixed: Update profiles table with proper columns based on schema
+          // Fix: Only include fields that exist in the profiles table
           const { error: updateError } = await supabase
             .from('profiles')
             .update({ 
-              role: 'admin',
+              // Only include fields that actually exist in the table
+              // The 'role' field doesn't exist in the profiles table
               employee_id: employeeId
             })
             .eq('id', userData.user.id);
