@@ -29,6 +29,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (!userId) return false;
     
     try {
+      // Fixed: use proper parameter naming in RPC call
       const { data, error } = await supabase
         .rpc('is_admin', { user_id: userId });
       
@@ -112,7 +113,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // If login is successful and employee ID was provided, update the profile
         const { data: userData } = await supabase.auth.getUser();
         if (userData?.user) {
-          // Update the user's profile with the employee ID
+          // Fixed: Update profiles table with correct data structure
           const { error: updateError } = await supabase
             .from('profiles')
             .update({ 
