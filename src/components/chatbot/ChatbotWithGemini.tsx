@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { useTheme } from "@/context/ThemeContext";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Message {
   role: "user" | "assistant";
@@ -22,7 +23,11 @@ interface CourseContext {
   description: string;
 }
 
-const ChatbotWithGemini = () => {
+interface ChatbotWithGeminiProps {
+  isWidget?: boolean;
+}
+
+const ChatbotWithGemini = ({ isWidget = false }: ChatbotWithGeminiProps) => {
   const { user } = useAuth();
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -217,6 +222,87 @@ const ChatbotWithGemini = () => {
     }
   };
   
+  // If we're in widget mode, render a more compact version
+  if (isWidget) {
+    return (
+      <div className="flex flex-col h-full">
+        <ScrollArea className="flex-1 p-3">
+          <div className="space-y-4">
+            {messages.map((message, i) => (
+              <div
+                key={i}
+                className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+              >
+                <div
+                  className={`flex gap-2 max-w-[85%] ${
+                    message.role === "user" ? "flex-row-reverse" : ""
+                  }`}
+                >
+                  <Avatar className={message.role === "user" ? "bg-blue-500" : "bg-slate-500"}>
+                    <AvatarFallback>
+                      {message.role === "user" ? <User size={16} /> : <Bot size={16} />}
+                    </AvatarFallback>
+                    {message.role === "user" && user?.user_metadata?.avatar_url && (
+                      <AvatarImage src={user.user_metadata.avatar_url} />
+                    )}
+                  </Avatar>
+                  
+                  <div>
+                    <div
+                      className={`rounded-lg p-3 text-sm ${
+                        message.role === "user"
+                          ? "bg-blue-500 text-white"
+                          : isDark 
+                            ? "bg-gray-700 text-gray-100" 
+                            : "bg-slate-100"
+                      }`}
+                    >
+                      <p>{message.content}</p>
+                    </div>
+                    <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-muted-foreground'}`}>
+                      {message.timestamp.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {loading && (
+              <div className="flex justify-start">
+                <div className="flex gap-2 max-w-[85%]">
+                  <Avatar className="bg-slate-500">
+                    <AvatarFallback><Bot size={16} /></AvatarFallback>
+                  </Avatar>
+                  <div className={`rounded-lg p-3 ${isDark ? 'bg-gray-700' : 'bg-slate-100'} flex items-center space-x-2`}>
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    <span className={`text-xs ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Thinking...</span>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+        </ScrollArea>
+        
+        <form onSubmit={handleSendMessage} className="border-t p-3 flex gap-2">
+          <Input
+            placeholder="Type your message..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            disabled={loading}
+            className={`flex-1 ${isDark ? 'bg-gray-700 border-gray-600 text-white' : ''}`}
+          />
+          <Button type="submit" size="icon" disabled={loading}>
+            <Send size={16} />
+          </Button>
+        </form>
+      </div>
+    );
+  }
+  
+  // Full page version
   return (
     <Card className={`flex flex-col h-[calc(100vh-10rem)] ${isDark ? 'bg-gray-800 border-gray-700' : ''}`}>
       <CardHeader className={isDark ? 'border-gray-700' : ''}>

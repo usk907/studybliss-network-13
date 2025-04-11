@@ -26,13 +26,13 @@ const SidebarLink = ({ to, icon: Icon, label, isCollapsed, isActive }: SidebarLi
             className={cn(
               "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
               isActive 
-                ? "bg-blue-100 text-elearn-primary font-medium" 
-                : "hover:bg-blue-100 text-gray-700"
+                ? "bg-blue-100/20 text-white font-medium" 
+                : "hover:bg-blue-100/10 text-gray-300"
             )}
           >
             <Icon className={cn(
               "h-5 w-5", 
-              isActive ? "text-elearn-primary" : "text-gray-500"
+              isActive ? "text-white" : "text-gray-400"
             )} />
             {!isCollapsed && <span>{label}</span>}
           </Link>
@@ -61,18 +61,18 @@ export function AppSidebar() {
   return (
     <div
       className={cn(
-        "flex flex-col h-screen bg-white border-r border-gray-200 transition-all duration-300",
+        "flex flex-col h-screen bg-gray-900 border-r border-gray-800 transition-all duration-300",
         isCollapsed ? "w-16" : "w-64"
       )}
     >
       {/* Logo/Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
-        {!isCollapsed && <span className="font-bold text-xl text-elearn-primary">StudyBliss</span>}
+      <div className="flex items-center justify-between p-4 border-b border-gray-800">
+        {!isCollapsed && <span className="font-bold text-xl text-white">StudyBliss</span>}
         <Button
           variant="ghost"
           size="icon"
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="ml-auto"
+          className={cn("ml-auto text-gray-300 hover:text-white hover:bg-gray-800")}
         >
           {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
         </Button>
@@ -125,7 +125,7 @@ export function AppSidebar() {
       </div>
       
       {/* Footer */}
-      <div className="p-4 border-t border-gray-200">
+      <div className="p-4 border-t border-gray-800">
         <div className="flex flex-col gap-2">
           <TooltipProvider>
             <Tooltip>
@@ -133,15 +133,15 @@ export function AppSidebar() {
                 <Link 
                   to="/settings" 
                   className={cn(
-                    "flex items-center gap-3 px-3 py-2 rounded-md hover:bg-blue-100 transition-colors w-full text-left",
-                    location.pathname === '/settings' ? "bg-blue-100 text-elearn-primary font-medium" : ""
+                    "flex items-center gap-3 px-3 py-2 rounded-md hover:bg-blue-100/10 transition-colors w-full text-left",
+                    location.pathname === '/settings' ? "bg-blue-100/20 text-white font-medium" : "text-gray-300"
                   )}
                 >
                   <Settings className={cn(
                     "h-5 w-5", 
-                    location.pathname === '/settings' ? "text-elearn-primary" : "text-gray-500"
+                    location.pathname === '/settings' ? "text-white" : "text-gray-400"
                   )} />
-                  {!isCollapsed && <span className="text-gray-700">Settings</span>}
+                  {!isCollapsed && <span>Settings</span>}
                 </Link>
               </TooltipTrigger>
               {isCollapsed && <TooltipContent side="right">Settings</TooltipContent>}
@@ -153,10 +153,10 @@ export function AppSidebar() {
               <TooltipTrigger asChild>
                 <button 
                   onClick={handleLogout} 
-                  className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-red-50 transition-colors w-full text-left"
+                  className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-red-500/10 transition-colors w-full text-left text-red-400"
                 >
-                  <LogOut className="h-5 w-5 text-red-500" />
-                  {!isCollapsed && <span className="text-red-500">Logout</span>}
+                  <LogOut className="h-5 w-5" />
+                  {!isCollapsed && <span>Logout</span>}
                 </button>
               </TooltipTrigger>
               {isCollapsed && <TooltipContent side="right">Logout</TooltipContent>}
