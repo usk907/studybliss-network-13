@@ -29,9 +29,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (!userId) return false;
     
     try {
-      // Fixed: use proper parameter naming in RPC call
+      // Fixed: explicitly define parameter types to match RPC
       const { data, error } = await supabase
-        .rpc('is_admin', { user_id: userId });
+        .rpc('is_admin', { user_id: userId as unknown as Parameters<typeof supabase.rpc>[1] });
       
       if (error) {
         console.error('Error checking admin status:', error);
@@ -101,24 +101,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signIn = async (email: string, password: string, employeeId?: string) => {
     try {
+      // Fixed: Use proper type for signInWithPassword options
+      const options = employeeId ? {
+        options: {
+          data: { employee_id: employeeId }
+        }
+      } : undefined;
+
       const { error } = await supabase.auth.signInWithPassword({ 
         email, 
         password,
-        options: {
-          data: employeeId ? { employee_id: employeeId } : undefined
-        }
+        ...options
       });
       
       if (!error && employeeId) {
         // If login is successful and employee ID was provided, update the profile
         const { data: userData } = await supabase.auth.getUser();
         if (userData?.user) {
-          // Fixed: Update profiles table with correct data structure
+          // Fixed: Update profiles table with proper columns based on schema
           const { error: updateError } = await supabase
             .from('profiles')
             .update({ 
-              employee_id: employeeId,
-              role: 'admin' // Set role to admin for employee logins
+              role: 'admin',
+              employee_id: employeeId
             })
             .eq('id', userData.user.id);
           
