@@ -48,7 +48,7 @@ export function CreateCourseForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
+      title: "", // This is required, so we initialize with empty string
       description: "",
       category: "",
       image_url: "",
@@ -59,8 +59,16 @@ export function CreateCourseForm() {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    // Ensure all required fields are present in courseData
     const courseData: CreateCourseData = {
-      ...values
+      title: values.title, // Explicitly include required fields
+      description: values.description,
+      category: values.category,
+      level: values.level,
+      image_url: values.image_url,
+      duration: values.duration,
+      is_featured: values.is_featured,
+      is_popular: values.is_popular,
     };
     
     const result = await createCourse(courseData);
@@ -293,3 +301,4 @@ export function CreateCourseForm() {
     </Form>
   );
 }
+
