@@ -12,6 +12,7 @@ import ChatbotWidget from "@/components/chatbot/ChatbotWidget";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Courses from "./pages/Courses";
+import CreateCourse from "./pages/CreateCourse";
 import CourseDetail from "./pages/CourseDetail";
 import Attendance from "./pages/Attendance";
 import Performance from "./pages/Performance";
@@ -68,6 +69,7 @@ const AppRoutes = () => {
         {/* Protected routes */}
         <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
         <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
+        <Route path="/courses/create" element={<ProtectedRoute><CreateCourse /></ProtectedRoute>} />
         <Route path="/courses/:id" element={<ProtectedRoute><CourseDetail /></ProtectedRoute>} />
         <Route path="/quiz/:id" element={<ProtectedRoute><Quiz /></ProtectedRoute>} />
         <Route path="/attendance" element={<ProtectedRoute><Attendance /></ProtectedRoute>} />

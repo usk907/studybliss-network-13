@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CourseList } from "@/components/courses/CourseList";
@@ -11,12 +10,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Filter, Search, SlidersHorizontal, RefreshCw } from "lucide-react";
+import { Filter, Search, SlidersHorizontal, RefreshCw, PlusCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useCourses } from "@/hooks/useCourses";
 import { useTheme } from "@/context/ThemeContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useNavigate } from "react-router-dom";
 
 const Courses = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -73,6 +73,7 @@ const Courses = () => {
       description: "Loading latest course data",
     });
   };
+  const navigate = useNavigate();
 
   return (
     <AppLayout>
@@ -123,6 +124,13 @@ const Courses = () => {
                 <SelectItem value="ai">AI</SelectItem>
               </SelectContent>
             </Select>
+            <Button
+              className="flex items-center gap-2"
+              onClick={() => navigate("/courses/create")}
+            >
+              <PlusCircle className="h-4 w-4" />
+              <span className="hidden sm:inline">Add Course</span>
+            </Button>
           </div>
         </div>
 
