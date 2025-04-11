@@ -13,5 +13,6 @@ enable_confirmations = true
 enabled = false
 
 [auth.external.google]
-enabled = false
+enabled = true
+
 

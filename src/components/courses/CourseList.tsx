@@ -3,6 +3,9 @@ import { CourseCard } from "./CourseCard";
 import { useFeaturedCourses, usePopularCourses, Course } from "@/hooks/useCourses";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTheme } from "@/context/ThemeContext";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface CourseListProps {
   type?: 'featured' | 'popular' | 'all';
@@ -15,6 +18,7 @@ export function CourseList({ type = 'all', courses: propCourses, isLoading: prop
   const { courses: popularCourses, isLoading: popularLoading } = usePopularCourses();
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const queryClient = useQueryClient();
   
   let displayCourses: Course[] = [];
   let isLoading = propIsLoading;
@@ -40,6 +44,12 @@ export function CourseList({ type = 'all', courses: propCourses, isLoading: prop
     }
   }
 
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: ['courses'] });
+    queryClient.invalidateQueries({ queryKey: ['featured-courses'] });
+    queryClient.invalidateQueries({ queryKey: ['popular-courses'] });
+  };
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -62,8 +72,16 @@ export function CourseList({ type = 'all', courses: propCourses, isLoading: prop
 
   if (displayCourses.length === 0) {
     return (
-      <div className={`text-center py-8 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-        <p>No courses found.</p>
+      <div className={`p-6 rounded-lg border text-center ${isDark ? 'border-gray-700 bg-gray-800 text-gray-400' : 'border-gray-200 bg-gray-50 text-gray-500'}`}>
+        <p className="mb-3">No courses found.</p>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleRefresh}
+          className="flex items-center gap-2"
+        >
+          <RefreshCw className="h-3.5 w-3.5" /> Refresh
+        </Button>
       </div>
     );
   }

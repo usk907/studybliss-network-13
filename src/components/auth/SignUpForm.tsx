@@ -43,10 +43,13 @@ export function SignUpForm() {
     setGoogleError(false);
     
     try {
+      // Get current site URL for redirect
+      const currentOrigin = window.location.origin;
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin
+          redirectTo: `${currentOrigin}/`
         }
       });
       
