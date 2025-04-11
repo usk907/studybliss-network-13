@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,7 +20,7 @@ export interface Course {
 }
 
 // Sample course data for when database is empty
-const sampleCourses: Partial<Course>[] = [
+const sampleCourses: Omit<Course, 'id' | 'created_at' | 'updated_at'>[] = [
   {
     title: "Introduction to Web Development",
     description: "Learn the basics of HTML, CSS, and JavaScript to build responsive websites from scratch.",
@@ -31,6 +30,7 @@ const sampleCourses: Partial<Course>[] = [
     level: "beginner",
     is_featured: true,
     is_popular: true,
+    instructor_id: '' // Will be set dynamically
   },
   {
     title: "Advanced React Development",
@@ -41,6 +41,7 @@ const sampleCourses: Partial<Course>[] = [
     level: "advanced",
     is_featured: true,
     is_popular: false,
+    instructor_id: '' // Will be set dynamically
   },
   {
     title: "Data Science Fundamentals",
@@ -51,6 +52,7 @@ const sampleCourses: Partial<Course>[] = [
     level: "intermediate",
     is_featured: false,
     is_popular: true,
+    instructor_id: '' // Will be set dynamically
   },
   {
     title: "Artificial Intelligence & Machine Learning",
@@ -61,6 +63,7 @@ const sampleCourses: Partial<Course>[] = [
     level: "advanced",
     is_featured: true,
     is_popular: true,
+    instructor_id: '' // Will be set dynamically
   },
   {
     title: "Mobile App Development with Flutter",
@@ -71,6 +74,7 @@ const sampleCourses: Partial<Course>[] = [
     level: "intermediate",
     is_featured: false,
     is_popular: true,
+    instructor_id: '' // Will be set dynamically
   },
   {
     title: "Full Stack JavaScript Development",
@@ -81,6 +85,7 @@ const sampleCourses: Partial<Course>[] = [
     level: "intermediate",
     is_featured: true,
     is_popular: false,
+    instructor_id: '' // Will be set dynamically
   }
 ];
 
@@ -105,11 +110,16 @@ const ensureSampleCoursesExist = async (userId: string) => {
         instructor_id: userId
       }));
       
-      const { error: insertError } = await supabase
-        .from('courses')
-        .insert(coursesWithInstructor);
-      
-      if (insertError) throw insertError;
+      // Insert each course one by one to avoid type issues
+      for (const course of coursesWithInstructor) {
+        const { error: insertError } = await supabase
+          .from('courses')
+          .insert(course);
+        
+        if (insertError) {
+          console.error("Error inserting course:", insertError);
+        }
+      }
       
       console.log("Sample courses added successfully");
     }
