@@ -10,7 +10,7 @@ export const checkUserRole = async (userId: string): Promise<boolean> => {
   if (!userId) return false;
   
   try {
-    // Cast both the function name and params to any to bypass type checking
+    // Call the is_admin database function to check admin status
     const { data, error } = await (supabase.rpc as any)('is_admin', { user_id: userId });
     
     if (error) {
@@ -18,7 +18,8 @@ export const checkUserRole = async (userId: string): Promise<boolean> => {
       return false;
     }
     
-    return data || false;
+    // If the function returns null or undefined, the user is not an admin
+    return !!data;
   } catch (error) {
     console.error('Error in checkUserRole:', error);
     return false;

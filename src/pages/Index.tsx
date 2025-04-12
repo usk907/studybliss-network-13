@@ -4,28 +4,105 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { BookOpen, TrendingUp, Users, Calendar, BarChart2, MessageSquare, PlusCircle } from "lucide-react";
+import { BookOpen, TrendingUp, Users, Calendar, BarChart2, MessageSquare, PlusCircle, UserCog, GraduationCap, FileEdit } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useState, useEffect } from "react";
 
 const Dashboard = () => {
   const { user, isAdmin } = useAuth();
+  const [adminStats, setAdminStats] = useState({
+    totalUsers: 42,
+    totalCourses: 12,
+    activeEnrollments: 156,
+    completionRate: 68
+  });
   
   return (
     <AppLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <h1 className="text-3xl font-bold">{isAdmin ? "Admin Dashboard" : "Dashboard"}</h1>
           {isAdmin && (
-            <Button asChild className="ml-auto">
-              <Link to="/courses/create">
-                <PlusCircle className="h-4 w-4 mr-2" />
-                Create Course
-              </Link>
-            </Button>
+            <div className="flex gap-2">
+              <Button asChild className="ml-auto">
+                <Link to="/courses/create">
+                  <PlusCircle className="h-4 w-4 mr-2" />
+                  Create Course
+                </Link>
+              </Button>
+            </div>
           )}
         </div>
         
-        {/* Quick Stats */}
+        {/* Admin Stats - Only visible for admins */}
+        {isAdmin && (
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold mb-4">Platform Overview</h2>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <Card className="h-full transition-all hover:shadow-md">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Users
+                  </CardTitle>
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{adminStats.totalUsers}</div>
+                  <p className="text-xs text-muted-foreground">
+                    Registered students
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card className="h-full transition-all hover:shadow-md">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Courses
+                  </CardTitle>
+                  <BookOpen className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{adminStats.totalCourses}</div>
+                  <p className="text-xs text-muted-foreground">
+                    Active courses
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card className="h-full transition-all hover:shadow-md">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Enrollments
+                  </CardTitle>
+                  <GraduationCap className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{adminStats.activeEnrollments}</div>
+                  <p className="text-xs text-muted-foreground">
+                    Active enrollments
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card className="h-full transition-all hover:shadow-md">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Completion Rate
+                  </CardTitle>
+                  <BarChart2 className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{adminStats.completionRate}%</div>
+                  <p className="text-xs text-muted-foreground">
+                    Average completion
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+        
+        {/* Quick Stats for all users */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Link to="/courses" className="group">
             <Card className="h-full transition-all hover:shadow-md">
@@ -95,6 +172,50 @@ const Dashboard = () => {
             </Card>
           </Link>
         </div>
+        
+        {/* Admin Quick Actions - Only visible for admins */}
+        {isAdmin && (
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold mb-4">Admin Actions</h2>
+            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+              <Link to="/courses/create">
+                <Card className="hover:shadow-md transition-all h-full">
+                  <CardContent className="flex flex-col items-center justify-center p-6">
+                    <PlusCircle className="h-8 w-8 mb-2 text-primary" />
+                    <h3 className="font-medium">Create Course</h3>
+                  </CardContent>
+                </Card>
+              </Link>
+              
+              <Link to="/courses">
+                <Card className="hover:shadow-md transition-all h-full">
+                  <CardContent className="flex flex-col items-center justify-center p-6">
+                    <FileEdit className="h-8 w-8 mb-2 text-primary" />
+                    <h3 className="font-medium">Manage Courses</h3>
+                  </CardContent>
+                </Card>
+              </Link>
+              
+              <Link to="/performance">
+                <Card className="hover:shadow-md transition-all h-full">
+                  <CardContent className="flex flex-col items-center justify-center p-6">
+                    <BarChart2 className="h-8 w-8 mb-2 text-primary" />
+                    <h3 className="font-medium">View Analytics</h3>
+                  </CardContent>
+                </Card>
+              </Link>
+              
+              <Link to="/profile">
+                <Card className="hover:shadow-md transition-all h-full">
+                  <CardContent className="flex flex-col items-center justify-center p-6">
+                    <UserCog className="h-8 w-8 mb-2 text-primary" />
+                    <h3 className="font-medium">Manage Users</h3>
+                  </CardContent>
+                </Card>
+              </Link>
+            </div>
+          </div>
+        )}
         
         {/* Course Progress */}
         <div>
