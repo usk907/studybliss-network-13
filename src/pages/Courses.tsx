@@ -17,6 +17,7 @@ import { useTheme } from "@/context/ThemeContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 const Courses = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -25,6 +26,7 @@ const Courses = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const queryClient = useQueryClient();
+  const { isAdmin } = useAuth();
   
   // Filter courses by search query
   const filteredCourses = courses.filter(course => 
@@ -124,13 +126,15 @@ const Courses = () => {
                 <SelectItem value="ai">AI</SelectItem>
               </SelectContent>
             </Select>
-            <Button
-              className="flex items-center gap-2"
-              onClick={() => navigate("/courses/create")}
-            >
-              <PlusCircle className="h-4 w-4" />
-              <span className="hidden sm:inline">Add Course</span>
-            </Button>
+            {isAdmin && (
+              <Button
+                className="flex items-center gap-2"
+                onClick={() => navigate("/courses/create")}
+              >
+                <PlusCircle className="h-4 w-4" />
+                <span className="hidden sm:inline">Add Course</span>
+              </Button>
+            )}
           </div>
         </div>
 

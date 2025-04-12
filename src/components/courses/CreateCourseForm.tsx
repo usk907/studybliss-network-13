@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -26,7 +26,9 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { useCreateCourse, CreateCourseData } from "@/hooks/useCreateCourse";
 import { useTheme } from "@/context/ThemeContext";
-import { Loader2 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { Loader2, ShieldAlert } from "lucide-react";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   title: z.string().min(3, { message: "Title must be at least 3 characters" }),
@@ -43,7 +45,17 @@ export function CreateCourseForm() {
   const { createCourse, isLoading } = useCreateCourse();
   const navigate = useNavigate();
   const { theme } = useTheme();
+  const { isAdmin } = useAuth();
+  const [unauthorized, setUnauthorized] = useState(false);
   const isDark = theme === "dark";
+  
+  // Check if user has admin privileges
+  useEffect(() => {
+    if (!isAdmin) {
+      setUnauthorized(true);
+      toast.error("Only administrators can create courses");
+    }
+  }, [isAdmin]);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -59,6 +71,11 @@ export function CreateCourseForm() {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (!isAdmin) {
+      toast.error("Only administrators can create courses");
+      return;
+    }
+    
     // Ensure all required fields are present in courseData
     const courseData: CreateCourseData = {
       title: values.title, // Explicitly include required fields
@@ -76,6 +93,24 @@ export function CreateCourseForm() {
       navigate("/courses");
     }
   };
+
+  if (unauthorized) {
+    return (
+      <div className="flex flex-col items-center justify-center p-6 space-y-4 text-center border rounded-lg border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800">
+        <ShieldAlert className="w-12 h-12 text-red-500 dark:text-red-400" />
+        <h3 className="text-xl font-semibold text-red-800 dark:text-red-300">Access Denied</h3>
+        <p className="text-gray-600 dark:text-gray-300">
+          You don't have permission to create courses. Only administrators can perform this action.
+        </p>
+        <Button 
+          variant="outline" 
+          onClick={() => navigate("/courses")}
+        >
+          Return to Courses
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <Form {...form}>
@@ -285,7 +320,7 @@ export function CreateCourseForm() {
           </Button>
           <Button 
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || !isAdmin}
           >
             {isLoading ? (
               <>
@@ -301,4 +336,3 @@ export function CreateCourseForm() {
     </Form>
   );
 }
-
