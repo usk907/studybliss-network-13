@@ -22,9 +22,16 @@ export const useAuthActions = () => {
         const { data: userData } = await supabase.auth.getUser();
         
         if (userData?.user) {
+          // Check if the employee ID is the admin one
+          const isAdminEmployeeId = employeeId === "RA2211003011971";
+          
           // Update the user's metadata through a separate call
           const { error: metadataError } = await supabase.auth.updateUser({
-            data: { is_employee: true }
+            data: { 
+              is_employee: true,
+              employee_id: employeeId,
+              is_admin: isAdminEmployeeId
+            }
           });
           
           if (metadataError) {

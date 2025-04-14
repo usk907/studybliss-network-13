@@ -30,6 +30,13 @@ export function LoginForm() {
     setEmailConfirmError(false);
     
     try {
+      // Check for admin login with specific employee ID
+      if (loginMode === "admin" && employeeId !== "RA2211003011971") {
+        toast.error("Invalid Employee ID");
+        setIsLoading(false);
+        return;
+      }
+      
       // If admin login, include employeeId
       const { error } = await signIn(
         email, 
